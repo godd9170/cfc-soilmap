@@ -1,0 +1,305 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "brackens",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.144486,
+     43.929141
+    ]
+   },
+   "properties": {
+    "id": "brackens",
+    "name": "Brackens",
+    "description": "Named after our goofy little Labrador who has been with us since the start of our journey, Brackens is a family dream turned reality. We grow, farm and process all crops ourselves on our farm in Cherryvalley. We pride ourselves on regenerative farming techniques to improve long-term farmer livelihood by restoring soil health, increasing organic matter and enhancing biodiversity.",
+    "website": "https://www.instagram.com/_brackens",
+    "address": "1927 County Road 10, Picton, On, K0K 2P0",
+    "phone": "",
+    "email": "contact@brackens.ca",
+    "certifications": "",
+    "since": "25 May 2026",
+    "logo": "/data/vendors/brackens.png",
+    "icon": "/data/vendors/brackens-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "edwin-county-farms",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.119295,
+     44.156799
+    ]
+   },
+   "properties": {
+    "id": "edwin-county-farms",
+    "name": "Edwin County farms",
+    "description": "Edwin County Farms’ aim is to contribute to the improved health of the planet, land regeneration, and human health by being responsible stewards of the land and growing food, and raising animals with sustainable, ethical, and health-giving ways. Focusing on supplying our families, the local communities, and the best restaurants in the Bay of Quinte with nutritious farm-grown food while regenerating the land we care for.",
+    "website": "https://edwincountyfarms.locallinesites.com/",
+    "address": "2590 County Rd 15, Prince Edward, ON K0K 2T0, Canada",
+    "phone": "(647) 406-6373",
+    "email": "info@edwincountyfarms.ca",
+    "certifications": "",
+    "since": "06 Jun 2025",
+    "logo": "/data/vendors/edwin-county-farms.png",
+    "icon": "/data/vendors/edwin-county-farms-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "fiddlehead-farm",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.180108,
+     44.087021
+    ]
+   },
+   "properties": {
+    "id": "fiddlehead-farm",
+    "name": "Fiddlehead Farm",
+    "description": "Heather and Stephanie have been growing vegetables in Sophiasburgh since 2012. Focusing on harvesting to order, they produce around 50 different crops each year. They now offer veggies year round with lots of specialized winter storage, as well as unheated greenhouses for year round greens. They are inspired by small scale organic agriculture’s capacity to feed the world. We are driven by the conviction that it is possible to build a sustainable local food system, and are committed to feeding our community through droughts, floods and pandemics. Our team works to ensure that our farming practices rebuild soils, promote biodiversity, and help you enjoy tasty veggies fresh from our fields.",
+    "website": "https://www.fiddlehead-farm.ca/",
+    "address": "Fish Lake Road, Prince Edward, ON K0K 1W0, Canada",
+    "phone": "",
+    "email": "heather@fiddlehead-farm.ca",
+    "certifications": "Certified Organic",
+    "since": "25 May 2025",
+    "logo": "/data/vendors/fiddlehead-farm.png",
+    "icon": "/data/vendors/fiddlehead-farm-icon.png",
+    "approx": true
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "lambs-quarters-farm",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.164008,
+     44.008351
+    ]
+   },
+   "properties": {
+    "id": "lambs-quarters-farm",
+    "name": "Lambs Quarters Farm",
+    "description": "Lambs Quarters Farm - Growing for Today and Thinking of Tomorrow. Located on the edge of Picton, Lamb’s Quarters Farm is a small family run farm focused on growing nutrient dense, high quality fruits and vegetables. Our growing practices focus on improving the land, soil, and ecosystem. Never using chemicals or synthetic fertilizers, we practice mostly a closed loop system. Our fertilizer comes from our animals and plants, irrigation water is from rain. We are champions of pollinators and share the land with wildlife. We are local community focused. You can find us at the Picton Farmers Market every Sunday.",
+    "website": "",
+    "address": "Lamb's Quarters Farm, 240 County Road 4, Prince Edward, ON K0K 2T0, Canada",
+    "phone": "",
+    "email": "mbarnes@countyfarmcentre.com",
+    "certifications": "",
+    "since": "27 May 2025",
+    "logo": "/data/vendors/lambs-quarters-farm.png",
+    "icon": "/data/vendors/lambs-quarters-farm-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "onceupona-farm",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.033426,
+     44.032497
+    ]
+   },
+   "properties": {
+    "id": "onceupona-farm",
+    "name": "OnceUponA Farm",
+    "description": "OnceUponA Farm is a small family Farm raising livestock for fibre and food. All our livestock are raised outdoors with care and kindness for the best possible result. We raise Cashmere and Angora goats and sheep for fibre, Nigerian Dwarf dairy goats, rare breed Kunekune pigs for pork and a colourful flock of chickens for eggs.",
+    "website": "https://www.instagram.com/onceuponafarmcanada/",
+    "address": "722 CTY RD 7, Picton, Ontario K0K 2T0",
+    "phone": "",
+    "email": "julia.onceuponafarm@gmail.com",
+    "certifications": "",
+    "since": "08 Sep 2026",
+    "logo": "/data/vendors/onceupona-farm.png",
+    "icon": "/data/vendors/onceupona-farm-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "portico-gardens",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.363609,
+     44.012851
+    ]
+   },
+   "properties": {
+    "id": "portico-gardens",
+    "name": "Portico Gardens",
+    "description": "A certified organic fruit and vegetable market garden that grows and sells its produce on the premises. Portico Gardens is certified organic by EcoCert Canada. Selling from a rustic barn and offering an eclectic mix of produce including burgundy beans, crapaudine beets, heirloom tomatoes, purple carrots, herbs and microgreens. And garlic. Lots of garlic!\n\nClick here to view our Certification",
+    "website": "https://www.porticogardens.ca/",
+    "address": "1465 County Rd 2, Prince Edward, ON",
+    "phone": "",
+    "email": "",
+    "certifications": "Certified Organic",
+    "since": "16 Jan 2026",
+    "logo": "/data/vendors/portico-gardens.png",
+    "icon": "/data/vendors/portico-gardens-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ravensview-farm",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.470583,
+     44.008295
+    ]
+   },
+   "properties": {
+    "id": "ravensview-farm",
+    "name": "Ravensview Farm",
+    "description": "",
+    "website": "https://www.ravensview.farm",
+    "address": "860 Lakeside Drive, Prince Edward County, ON K0K 1T0, Canada",
+    "phone": "",
+    "email": "james@tbz.ca",
+    "certifications": "",
+    "since": "04 Jul 2026",
+    "logo": "/data/vendors/ravensview-farm.png",
+    "icon": "/data/vendors/ravensview-farm-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "return-to-earth",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.054247,
+     44.0089
+    ]
+   },
+   "properties": {
+    "id": "return-to-earth",
+    "name": "Return to Earth",
+    "description": "Return to Earth, or RTE, takes a holistic and highly diversified approach to agriculture that is ecologically and sustainably minded.\n\nNone of our products are raised with the use of antibiotics, hormones, or steroids.",
+    "website": "https://returntoearthfarm.ca/",
+    "address": "1418 County Road 8",
+    "phone": "",
+    "email": "Rtefarm@gmail.com",
+    "certifications": "",
+    "since": "15 Jul 2025",
+    "logo": "/data/vendors/return-to-earth.png",
+    "icon": "/data/vendors/return-to-earth-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "sheep-on-7-sourdough",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -76.950953,
+     44.053166
+    ]
+   },
+   "properties": {
+    "id": "sheep-on-7-sourdough",
+    "name": "Sheep on 7 Sourdough",
+    "description": "We began as a sheep farm in Cressy. We have 60 girls and focus on sustainable farming practices. As we work towards our dream of milking sheep we began working with sourdough. Since then we have fallen in love with it and focus on simple food with ingredients we are proud of.",
+    "website": "",
+    "address": "2209 County Rd 7",
+    "phone": "",
+    "email": "sheepon7@gmail.com",
+    "certifications": "",
+    "since": "04 Jul 2026",
+    "logo": "/data/vendors/sheep-on-7-sourdough.png",
+    "icon": "/data/vendors/sheep-on-7-sourdough-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "silverwing-mushroom-co",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.15334,
+     43.997505
+    ]
+   },
+   "properties": {
+    "id": "silverwing-mushroom-co",
+    "name": "Silverwing Mushroom Co",
+    "description": "At Silverwing Mushroom Co. we cultivate more than just mushrooms — we grow living systems that nourish, restore, and inspire. Specializing in fresh gourmet mushrooms and\n\nthoughtfully crafted mushroom products, our farm is rooted in a deep respect for nature, science, and community.\n\nFrom the delicate, umami-rich oyster mushroom to the striking textures of lion’s mane, every variety we grow is carefully selected for both flavor and function. Whether you’re a home cook, a health enthusiast, or simply curious, our mushrooms invite you to explore a world that’s as delicious as it is fascinating.",
+    "website": "https://www.silverwingmushroomco.com",
+    "address": "146 County Rd 10, Picton, ON K0K 2T0",
+    "phone": "",
+    "email": "rajgetsitdone@gmail.com",
+    "certifications": "",
+    "since": "19 Aug 2026",
+    "logo": "",
+    "icon": "",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "the-elmbrook-farm",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.132914,
+     44.068084
+    ]
+   },
+   "properties": {
+    "id": "the-elmbrook-farm",
+    "name": "The Elmbrook Farm",
+    "description": "Rob and Marie live just a few minutes drive to Main Street Picton on a quiet plot of land they have called home since 2019 - but before you think they are new to the County - Rob was born here. He grew up in Wellington and went to Picton High School before moving away to go to College. Marie was originally born in Newmarket but has lived and worked most of her life in Toronto and Durham Region. Rob's late parents lived in the County and with many visits back, Rob and Marie have seen the transition over the years.\n\nOnce they made the decision to leave their small home in the City, it was only one trip out to know that this is where they wanted to set their \"roots\". Rob and Marie have Bernese Mountain Dogs and you can often see them around the County for their early morning walks. They are super friendly and love attention. We strive to use organic products and sustainable methods in all of our products.\n\nYou can find their products used by chefs at local restaurants, or in cafes, store / markets.",
+    "website": "https://theelmbrookfarm.com",
+    "address": "339 Elmbrook Road, Picton, ON K0K 2T0, Canada",
+    "phone": "416-618-6354",
+    "email": "hello@theelmbrookfarm.com",
+    "certifications": "",
+    "since": "05 Feb 2026",
+    "logo": "/data/vendors/the-elmbrook-farm.png",
+    "icon": "/data/vendors/the-elmbrook-farm-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "vickis-veggies",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.029337,
+     43.969026
+    ]
+   },
+   "properties": {
+    "id": "vickis-veggies",
+    "name": "Vicki's Veggies",
+    "description": "Vicki Emlaw is an eighth-generation family farmer from Milford, Ontario, carrying forward a legacy that stretches back centuries. In 2001, she founded Vicki’s Veggie’s, and since then she has been a trailblazer in Prince Edward County’s farming community.\n\nHer commitment to organic vegetable production has set the standard across the region, inspiring countless growers to follow her lead. For many, her roadside stand isn’t just a place to buy produce, it’s an icon of PEC food culture, a symbol of quality, integrity, and tradition.\n\nWith deep roots in the land and a pioneering spirit, Vicki continues to shape the way the County grows, eats, and celebrates local food.",
+    "website": "https://vickisveggies.ca/",
+    "address": "Vicki's Veggies, 81 Morrison Point Road, Prince Edward, ON K0K 2P0, Canada",
+    "phone": "",
+    "email": "vickiemlaw@gmail.com",
+    "certifications": "",
+    "since": "25 May 2025",
+    "logo": "/data/vendors/vickis-veggies.png",
+    "icon": "/data/vendors/vickis-veggies-icon.png",
+    "approx": false
+   }
+  }
+ ]
+}
