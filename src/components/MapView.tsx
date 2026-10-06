@@ -13,7 +13,9 @@ import {
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Protocol } from 'pmtiles'
-import { GRID_BOUNDS, LAYERS, soilDepthExpression, soilFillExpression, type ThematicLayer } from '../lib/layers'
+import { LAYERS, type ThematicLayer } from '../lib/layers'
+import { loadGridsMeta, type GridsMeta } from '../lib/lookup'
+import { SOIL_SOURCE, addLayerToMap, type LayerHandle } from './mapLayers'
 import type { Basemap } from '../lib/urlState'
 
 const BASEMAP_STYLE = 'https://tiles.openfreemap.org/styles/positron'
@@ -50,7 +52,13 @@ interface Props {
   selected: { lat: number; lng: number } | null
   selectedPolygonId: number | null
   onViewChange: (v: ViewState) => void
-  onSelect: (p: { lat: number; lng: number }) => void
+  /** A map click. `feature` is set when a clickable feature (e.g. a vendor point) was hit. */
+  onSelect: (p: { lat: number; lng: number }, feature?: SelectedFeature) => void
+}
+
+export interface SelectedFeature {
+  layerId: string
+  id: string
 }
 
 const opacityOf = (l: ThematicLayer, opacity: Record<string, number>) => opacity[l.id] ?? l.defaultOpacity
@@ -68,13 +76,31 @@ export default function MapView(props: Props) {
   const propsRef = useRef(props)
   propsRef.current = props
 
-  // Create the map once.
+  const handles = useRef(new Map<string, LayerHandle>())
+
+  // Create the map once (after the small grid metadata file, which gives grid image bounds).
   useEffect(() => {
-    if (!container.current) return
+    let map: MapLibreMap | null = null
+    let cancelled = false
+    loadGridsMeta()
+      .catch(() => null)
+      .then((grids) => {
+        if (!cancelled && container.current) map = createMap(container.current, grids)
+      })
+    return () => {
+      cancelled = true
+      map?.remove()
+      mapRef.current = null
+      loaded.current = false
+      handles.current.clear()
+    }
+  }, [])
+
+  function createMap(el: HTMLDivElement, grids: GridsMeta | null): MapLibreMap {
     ensurePmtilesProtocol()
     const { initialView } = propsRef.current
     const map = new MapLibreMap({
-      container: container.current,
+      container: el,
       style: BASEMAP_STYLE,
       center: [initialView.lng, initialView.lat],
       zoom: initialView.zoom,
@@ -123,110 +149,19 @@ export default function MapView(props: Props) {
         style.layers.find((l) => l.type !== 'background')?.id,
       )
 
-      // Shared source for the 1948 polygons (used by the soil and depth layers and the selection outline).
-      const soilLayer = LAYERS.find((l) => l.kind === 'soil-vector')!
-      map.addSource('pec-soil1948', { type: 'geojson', data: '/data/soil-1948.geojson', attribution: soilLayer.attribution })
+      // Shared source for the 1948 polygons (soil and depth layers, labels, selection outline).
+      map.addSource(SOIL_SOURCE, { type: 'geojson', data: '/data/soil-1948.geojson', attribution: LAYERS.find((l) => l.source.type === 'soil1948')!.attribution })
 
-      // Thematic layers, bottom to top in reverse registry order so the 1948 survey sits on top.
-      for (const layer of [...LAYERS].reverse()) {
-        const id = `pec-${layer.id}`
-        if (layer.kind === 'soil-vector' || layer.kind === 'soil-depth') {
-          map.addLayer(
-            {
-              id: `${id}-fill`,
-              type: 'fill',
-              source: 'pec-soil1948',
-              layout: { visibility: 'none' },
-              paint: {
-                'fill-color': (layer.kind === 'soil-vector' ? soilFillExpression() : soilDepthExpression()) as never,
-              },
-            },
-            firstAbove,
-          )
-          map.addLayer(
-            {
-              id: `${id}-line`,
-              type: 'line',
-              source: 'pec-soil1948',
-              layout: { visibility: 'none' },
-              filter: ['!=', ['get', 'symbol'], 'UNK'],
-              paint: {
-                'line-color': '#4a3b2f',
-                'line-width': ['interpolate', ['linear'], ['zoom'], 9, 0.3, 14, 1.2],
-              },
-            },
-            firstAbove,
-          )
-        } else if (layer.kind === 'vector') {
-          map.addSource(id, { type: 'geojson', data: layer.geojsonUrl!, attribution: layer.attribution })
-          map.addLayer(
-            {
-              id: `${id}-fill`,
-              type: 'fill',
-              source: id,
-              layout: { visibility: 'none' },
-              paint: { 'fill-color': layer.fillColour as never },
-            },
-            firstAbove,
-          )
-          map.addLayer(
-            {
-              id: `${id}-line`,
-              type: 'line',
-              source: id,
-              layout: { visibility: 'none' },
-              paint: { 'line-color': '#333', 'line-width': ['interpolate', ['linear'], ['zoom'], 9, 0.2, 14, 0.9] },
-            },
-            firstAbove,
-          )
-        } else if (layer.kind === 'grid') {
-          const [w, s, e, n] = GRID_BOUNDS
-          map.addSource(id, {
-            type: 'image',
-            url: `/data/grid-${layer.id}.png`,
-            coordinates: [
-              [w, n],
-              [e, n],
-              [e, s],
-              [w, s],
-            ],
-          })
-          map.addLayer(
-            {
-              id: `${id}-raster`,
-              type: 'raster',
-              source: id,
-              layout: { visibility: 'none' },
-              // Show grid cells honestly rather than smoothing them into false detail.
-              paint: { 'raster-resampling': 'nearest', 'raster-fade-duration': 0 },
-            },
-            firstAbove,
-          )
-        } else {
-          map.addSource(id, {
-            type: 'raster',
-            url: `pmtiles://${layer.pmtilesUrl}`,
-            tileSize: 256,
-            maxzoom: layer.maxzoom ?? 18,
-            attribution: layer.attribution,
-          })
-          map.addLayer(
-            {
-              id: `${id}-raster`,
-              type: 'raster',
-              source: id,
-              layout: { visibility: 'none' },
-              paint: { 'raster-fade-duration': 150 },
-            },
-            firstAbove,
-          )
-        }
-      }
+      // Registry order is top-first, so add in reverse: each fill/raster is inserted just under the basemap's
+      // roads and labels, above the previous one. Point layers are added last, on top of everything.
+      const ordered = [...LAYERS].reverse()
+      for (const layer of ordered.filter((l) => l.source.type !== 'geojson-points'))
+        handles.current.set(layer.id, addLayerToMap(map, layer, firstAbove, grids))
 
       map.addLayer({
         id: 'pec-soil1948-label',
         type: 'symbol',
-        source: 'pec-soil1948',
+        source: SOIL_SOURCE,
         minzoom: 12,
         layout: {
           visibility: 'none',
@@ -251,10 +186,13 @@ export default function MapView(props: Props) {
       map.addLayer({
         id: 'pec-selected-line',
         type: 'line',
-        source: 'pec-soil1948',
+        source: SOIL_SOURCE,
         filter: ['==', ['get', 'id'], -1],
         paint: { 'line-color': '#111', 'line-width': 3 },
       })
+
+      for (const layer of ordered.filter((l) => l.source.type === 'geojson-points'))
+        handles.current.set(layer.id, addLayerToMap(map, layer, undefined, grids))
 
       loaded.current = true
       syncAll()
@@ -264,15 +202,34 @@ export default function MapView(props: Props) {
       const c = map.getCenter()
       propsRef.current.onViewChange({ lat: c.lat, lng: c.lng, zoom: map.getZoom() })
     })
-    map.on('click', (e) => propsRef.current.onSelect({ lat: e.lngLat.lat, lng: e.lngLat.lng }))
-    map.getCanvas().style.cursor = 'crosshair'
-
-    return () => {
-      map.remove()
-      mapRef.current = null
-      loaded.current = false
+    const clickable = () =>
+      [...handles.current.entries()]
+        .filter(([id]) => propsRef.current.activeLayers.includes(id))
+        .flatMap(([, h]) => h.clickable ?? [])
+    const hitAt = (pt: { x: number; y: number }) => {
+      const layers = clickable()
+      if (!layers.length || !loaded.current) return null
+      const box: [[number, number], [number, number]] = [
+        [pt.x - 6, pt.y - 6],
+        [pt.x + 6, pt.y + 6],
+      ]
+      return map.queryRenderedFeatures(box, { layers })[0] ?? null
     }
-  }, [])
+    map.on('click', (e) => {
+      const hit = hitAt(e.point)
+      if (hit && hit.geometry.type === 'Point') {
+        const [lng, lat] = hit.geometry.coordinates
+        const layerId = [...handles.current.entries()].find(([, h]) => h.ids.includes(hit.layer.id))?.[0]
+        if (layerId) return propsRef.current.onSelect({ lat, lng }, { layerId, id: String(hit.properties.id) })
+      }
+      propsRef.current.onSelect({ lat: e.lngLat.lat, lng: e.lngLat.lng })
+    })
+    map.on('mousemove', (e) => {
+      map.getCanvas().style.cursor = hitAt(e.point) ? 'pointer' : 'crosshair'
+    })
+    map.getCanvas().style.cursor = 'crosshair'
+    return map
+  }
 
   function syncAll() {
     const map = mapRef.current
@@ -290,19 +247,11 @@ export default function MapView(props: Props) {
     map.setLayoutProperty('pec-satellite', 'visibility', satellite ? 'visible' : 'none')
 
     for (const layer of LAYERS) {
+      const h = handles.current.get(layer.id)
+      if (!h) continue
       const on = p.activeLayers.includes(layer.id)
-      const op = opacityOf(layer, p.opacity)
-      const id = `pec-${layer.id}`
-      const vis = on ? 'visible' : 'none'
-      if (layer.kind === 'grid' || layer.kind === 'pmtiles-raster') {
-        map.setLayoutProperty(`${id}-raster`, 'visibility', vis)
-        map.setPaintProperty(`${id}-raster`, 'raster-opacity', op)
-      } else {
-        map.setLayoutProperty(`${id}-fill`, 'visibility', vis)
-        map.setLayoutProperty(`${id}-line`, 'visibility', vis)
-        map.setPaintProperty(`${id}-fill`, 'fill-opacity', op)
-        map.setPaintProperty(`${id}-line`, 'line-opacity', Math.min(1, op * 0.8))
-      }
+      for (const id of h.ids) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none')
+      h.setOpacity(map, opacityOf(layer, p.opacity))
     }
     map.setLayoutProperty('pec-soil1948-label', 'visibility', p.activeLayers.includes('soil1948') ? 'visible' : 'none')
     map.setFilter('pec-selected-line', ['==', ['get', 'id'], p.selectedPolygonId ?? -1])

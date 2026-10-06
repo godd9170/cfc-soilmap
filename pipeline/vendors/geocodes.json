@@ -1,0 +1,86 @@
+{
+ "1418 County Road 8, Prince Edward County, Ontario": {
+  "display": "PEC civic address (Add_Number=1418 AND St_PreTyp='County Road' AND St_Name='8')",
+  "lat": 44.00890039240278,
+  "lng": -77.05424737753634,
+  "query": "1418 County Road 8, Prince Edward County, Ontario",
+  "type": "house"
+ },
+ "146 County Road 10, Picton, ON K0K 2T0": {
+  "display": "PEC civic address (Add_Number=146 AND St_PreTyp='County Road' AND St_Name='10')",
+  "lat": 43.99750513694988,
+  "lng": -77.15334042802962,
+  "query": "146 County Road 10, Picton, ON K0K 2T0",
+  "type": "house"
+ },
+ "1465 County Road 2, Prince Edward, ON": {
+  "display": "PEC civic address (Add_Number=1465 AND St_PreTyp='County Road' AND St_Name='2')",
+  "lat": 44.01285068662692,
+  "lng": -77.36360879778695,
+  "query": "1465 County Road 2, Prince Edward, ON",
+  "type": "house"
+ },
+ "1927 County Road 10, Picton, On, K0K 2P0": {
+  "display": "PEC civic address (Add_Number=1927 AND St_PreTyp='County Road' AND St_Name='10')",
+  "lat": 43.9291413993566,
+  "lng": -77.1444856938441,
+  "query": "1927 County Road 10, Picton, On, K0K 2P0",
+  "type": "house"
+ },
+ "2209 County Road 7, Prince Edward County, Ontario": {
+  "display": "PEC civic address (Add_Number=2209 AND St_PreTyp='County Road' AND St_Name='7')",
+  "lat": 44.05316587149735,
+  "lng": -76.95095301097945,
+  "query": "2209 County Road 7, Prince Edward County, Ontario",
+  "type": "house"
+ },
+ "240 County Road 4, Prince Edward, ON K0K 2T0": {
+  "display": "PEC civic address (Add_Number=240 AND St_PreTyp='County Road' AND St_Name='4')",
+  "lat": 44.00835082073597,
+  "lng": -77.16400821333701,
+  "query": "240 County Road 4, Prince Edward, ON K0K 2T0",
+  "type": "house"
+ },
+ "2590 County Road 15, Prince Edward, ON K0K 2T0": {
+  "display": "PEC civic address (Add_Number=2590 AND St_PreTyp='County Road' AND St_Name='15')",
+  "lat": 44.15679878128712,
+  "lng": -77.11929533082113,
+  "query": "2590 County Road 15, Prince Edward, ON K0K 2T0",
+  "type": "house"
+ },
+ "339 Elmbrook Road, Picton, ON K0K 2T0": {
+  "display": "PEC civic address (Add_Number=339 AND UPPER(St_Name)='ELMBROOK' AND St_PosTyp='Road')",
+  "lat": 44.06808378814168,
+  "lng": -77.13291432129213,
+  "query": "339 Elmbrook Road, Picton, ON K0K 2T0",
+  "type": "house"
+ },
+ "722 County Road 7, Picton, Ontario K0K 2T0": {
+  "display": "PEC civic address (Add_Number=722 AND St_PreTyp='County Road' AND St_Name='7')",
+  "lat": 44.032496512957955,
+  "lng": -77.03342564545778,
+  "query": "722 County Road 7, Picton, Ontario K0K 2T0",
+  "type": "house"
+ },
+ "81 Morrison Point Road, Prince Edward, ON K0K 2P0": {
+  "display": "PEC civic address (Add_Number=81 AND UPPER(St_Name)='MORRISON POINT' AND St_PosTyp='Road')",
+  "lat": 43.96902614355671,
+  "lng": -77.0293368779047,
+  "query": "81 Morrison Point Road, Prince Edward, ON K0K 2P0",
+  "type": "house"
+ },
+ "860 Lakeside Drive, Prince Edward County, ON K0K 1T0": {
+  "display": "PEC civic address (Add_Number=860 AND UPPER(St_Name)='LAKESIDE' AND St_PosTyp='Drive')",
+  "lat": 44.00829458276607,
+  "lng": -77.4705825231476,
+  "query": "860 Lakeside Drive, Prince Edward County, ON K0K 1T0",
+  "type": "house"
+ },
+ "Fish Lake Road, Prince Edward, ON K0K 1W0": {
+  "display": "Fish Lake Road, Demorestville, Prince Edward County, Central Ontario, Ontario, Canada",
+  "lat": 44.0870211,
+  "lng": -77.1801075,
+  "query": "Fish Lake Road, Prince Edward, ON K0K 1W0",
+  "type": "road"
+ }
+}

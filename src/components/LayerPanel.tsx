@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { LAYERS, type LayerGroup } from '../lib/layers'
+import { GROUPS, LAYERS } from '../lib/layers'
 import type { SoilUnit } from '../lib/soil'
 import type { Basemap } from '../lib/urlState'
 import { LayerLegend, SoilLegend } from './Legend'
@@ -18,8 +18,6 @@ interface Props {
   onRoads: (v: boolean) => void
   onLabels: (v: boolean) => void
 }
-
-const GROUPS: LayerGroup[] = ['Historical', 'Soil properties', 'Land']
 
 function Toggle({ id, label, checked, onChange, badge }: { id: string; label: string; checked: boolean; onChange: (v: boolean) => void; badge?: string }) {
   return (
@@ -46,12 +44,12 @@ export default function LayerPanel(p: Props) {
   return (
     <nav aria-label="Map layers" className="flex flex-col gap-5 p-4">
       {GROUPS.map((group) => {
-        const layers = LAYERS.filter((l) => l.group === group)
+        const layers = LAYERS.filter((l) => l.group === group.id)
         if (!layers.length) return null
         return (
-          <section key={group} aria-labelledby={`grp-${group}`}>
-            <h2 id={`grp-${group}`} className="mb-1 text-xs font-semibold tracking-wider text-stone-600 uppercase">
-              {group}
+          <section key={group.id} aria-labelledby={`grp-${group.id}`}>
+            <h2 id={`grp-${group.id}`} className="mb-1 text-xs font-semibold tracking-wider text-stone-600 uppercase">
+              {group.title}
             </h2>
             <ul className="divide-y divide-stone-200">
               {layers.map((l) => {
@@ -88,7 +86,7 @@ export default function LayerPanel(p: Props) {
                           </output>
                         </div>
                         <p className="text-xs text-stone-600">{l.description}</p>
-                        {l.kind === 'soil-vector' ? (
+                        {l.source.type === 'soil1948' && l.source.style === 'series' ? (
                           <div>
                             <button
                               type="button"

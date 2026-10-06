@@ -5,7 +5,7 @@ Outputs in public/data/:
   grid-<prop>-data.png  lossless value grid: R = value * scale, G = source (1 AAFC SLGC, 2 ISRIC SoilGrids), A = valid
   grids.json            grid bounds, scales, ramps and provenance
   cli.geojson           Canada Land Inventory agricultural capability 1:250k, clipped to the county area
-  geology.geojson       OGS surficial geology (MRD128-REV, 1:50k), clipped and simplified
+  geology.pmtiles       OGS surficial geology (MRD128-REV, 1:50k), clipped, as vector tiles (layer "geology")
 
 Soil grids: AAFC Soil Landscape Grids of Canada (100 m) are preferred; they have large
 no-data gaps in PEC, which are filled from ISRIC SoilGrids 2.0 (250 m, resampled to the
@@ -22,6 +22,7 @@ import geopandas as gpd
 import numpy as np
 import tifffile
 from PIL import Image
+from vector_tiles import geojson_to_pmtiles
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "public" / "data"
@@ -185,10 +186,12 @@ def build_geology():
 
     for c in ("unit", "deposit", "material", "description"):
         g[c] = g[c].astype(str).replace({"None": ""}).map(dedupe)
-    g["geometry"] = g.geometry.simplify(0.00004, preserve_topology=True)
     g = g[["unit", "deposit", "material", "description", "geometry"]]
-    g.to_file(OUT / "geology.geojson", driver="GeoJSON", COORDINATE_PRECISION=5)
-    print("  ", len(g), "polygons", (OUT / "geology.geojson").stat().st_size / 1e6, "MB")
+    tmp = ROOT / "data" / "geology.geojson"
+    tmp.parent.mkdir(exist_ok=True)
+    g.to_file(tmp, driver="GeoJSON", COORDINATE_PRECISION=6)
+    geojson_to_pmtiles(tmp, OUT / "geology.pmtiles", "geology")
+    print("  ", len(g), "polygons")
     print("  units", g.groupby("unit").deposit.first().to_dict())
 
 

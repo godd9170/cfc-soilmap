@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { LAYERS, SOIL_1948_PROVENANCE, type ThematicLayer } from '../lib/layers'
+import { GROUPS, LAYERS, SOIL_1948_PROVENANCE, type FeatureCard, type ThematicLayer } from '../lib/layers'
 import { SOIL_COLOURS, type SoilFeature, type SoilUnit } from '../lib/soil'
 import { Swatch } from './Legend'
 
@@ -12,6 +12,8 @@ interface Props {
   onClose: () => void
   onShare: () => void
   shareStatus: string
+  /** Card for a clicked feature (e.g. a vendor), shown above the location details. */
+  card: { layer: ThematicLayer; card: FeatureCard } | null
 }
 
 type QueryResult =
@@ -94,14 +96,54 @@ function ModernBlock({ layers, values }: { layers: ThematicLayer[]; values: Reco
   )
 }
 
-export default function InfoPanel({ point, feature, unit, loading, onClose, onShare, shareStatus }: Props) {
+function FeatureCardView({ layer, card }: { layer: ThematicLayer; card: FeatureCard }) {
+  return (
+    <section aria-labelledby="card-title" className="border-b border-stone-200 px-4 py-4">
+      <p className="mb-2 text-xs font-semibold tracking-wider text-stone-600 uppercase">{layer.title}</p>
+      <div className="flex items-start gap-3">
+        {card.image && <img src={card.image} alt="" className="size-16 shrink-0 rounded-lg border border-stone-200 bg-white object-cover" />}
+        <div className="min-w-0">
+          <h3 id="card-title" className="font-serif text-2xl leading-tight text-stone-900">{card.title}</h3>
+          {card.subtitle && <p className="text-xs text-stone-600">{card.subtitle}</p>}
+        </div>
+      </div>
+      {card.note && <p className="mt-2 rounded bg-amber-50 px-2 py-1 text-xs text-amber-900">{card.note}</p>}
+      {card.text && <p className="mt-3 whitespace-pre-line text-stone-800">{card.text}</p>}
+      {!!card.facts?.length && (
+        <dl className="mt-3">
+          {card.facts.map((f) => (
+            <div key={f.label} className="grid grid-cols-[8.5rem_1fr] gap-2 py-1">
+              <dt className="text-stone-600">{f.label}</dt>
+              <dd className="text-stone-900">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {!!card.links?.length && (
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+          {card.links.map((l) => (
+            <li key={l.href}>
+              <a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className="font-medium text-moss-700 underline underline-offset-2">
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-3 text-xs text-stone-600 italic">{layer.caveat} The soil at this address is described below.</p>
+    </section>
+  )
+}
+
+export default function InfoPanel({ point, feature, unit, loading, onClose, onShare, shareStatus, card }: Props) {
   const values = useModernValues(point)
   const [showOriginal, setShowOriginal] = useState(false)
   useEffect(() => setShowOriginal(false), [unit?.symbol])
 
-  const soilProps = QUERY_LAYERS.filter((l) => l.group === 'Soil properties')
-  const capability = QUERY_LAYERS.filter((l) => l.id === 'cli')
-  const geology = QUERY_LAYERS.filter((l) => l.id === 'geology')
+  // Every non-historical group with queryable layers gets its own section, in GROUPS order.
+  const groupSections = GROUPS.filter((g) => g.id !== 'historical')
+    .map((g) => ({ group: g, layers: QUERY_LAYERS.filter((l) => l.group === g.id) }))
+    .filter((s) => s.layers.length > 0)
   const status = (id: string) => {
     const r = values[id]
     return r?.status === 'ok' ? r.value : r?.status === 'loading' ? '…' : '—'
@@ -134,6 +176,8 @@ export default function InfoPanel({ point, feature, unit, loading, onClose, onSh
           ×
         </button>
       </header>
+
+      {card && <FeatureCardView layer={card.layer} card={card.card} />}
 
       <section aria-labelledby="hist-title" className="px-4 py-4" aria-live="polite">
         <h3 id="hist-title" className="mb-2 text-xs font-semibold tracking-wider text-stone-600 uppercase">
@@ -223,26 +267,12 @@ export default function InfoPanel({ point, feature, unit, loading, onClose, onSh
         <p className="mt-3 text-xs text-stone-600 italic">{LAYERS[0].caveat}</p>
       </section>
 
-      {soilProps.length > 0 && (
-        <Section title="Soil properties" id="modern-title">
-          <ModernBlock layers={soilProps} values={values} />
-          <p className="mt-2 text-xs text-stone-600 italic">
-            Modeled values are estimates from statistical soil models at about 100 m resolution. Conditions may vary
-            substantially within a field; these are not field measurements or soil tests. Depth over bedrock is the typical
-            depth for the 1948 soil type.
-          </p>
+      {groupSections.map(({ group, layers }) => (
+        <Section key={group.id} title={group.title} id={`sec-${group.id}`}>
+          <ModernBlock layers={layers} values={values} />
+          {'note' in group && <p className="mt-2 text-xs text-stone-600 italic">{group.note}</p>}
         </Section>
-      )}
-      {capability.length > 0 && (
-        <Section title="Agricultural capability" id="cli-title">
-          <ModernBlock layers={capability} values={values} />
-        </Section>
-      )}
-      {geology.length > 0 && (
-        <Section title="Surficial geology" id="geo-title">
-          <ModernBlock layers={geology} values={values} />
-        </Section>
-      )}
+      ))}
 
       {QUERY_LAYERS.length > 0 && (
         <Section title="Historical vs. modern" id="cmp-title">
@@ -281,12 +311,10 @@ export default function InfoPanel({ point, feature, unit, loading, onClose, onSh
             </a>{' '}
             (observed historical mapping)
           </li>
-          {QUERY_LAYERS.filter(
+          {[...QUERY_LAYERS, ...(card ? [card.layer] : [])].filter(
             (l, i, all) =>
-              l.provenance.nature !== 'observed' &&
-              l.provenance.dataset !== SOIL_1948_PROVENANCE.dataset &&
-              all.findIndex((o) => o.provenance.dataset === l.provenance.dataset) === i &&
-              !l.provenance.dataset.includes('1948'),
+              l.provenance.publisher !== SOIL_1948_PROVENANCE.publisher &&
+              all.findIndex((o) => o.provenance.dataset === l.provenance.dataset) === i,
           ).map((l) => (
             <li key={l.id}>
               <a href={l.provenance.url} className="underline underline-offset-2" target="_blank" rel="noreferrer">

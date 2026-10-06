@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import InfoPanel from '../components/InfoPanel'
 import LayerPanel from '../components/LayerPanel'
-import MapView, { type ViewState } from '../components/MapView'
+import MapView, { type SelectedFeature, type ViewState } from '../components/MapView'
 import SearchBox from '../components/SearchBox'
 import SiteHeader from '../components/SiteHeader'
-import { LAYER_IDS, hydrateGridLegends } from '../lib/layers'
+import { LAYER_IDS, hydrateGridLegends, layerById, type FeatureCard, type ThematicLayer } from '../lib/layers'
+import { loadJson } from '../lib/lookup'
 import {
   findSoilAt,
   loadSoilPolygons,
@@ -24,6 +25,8 @@ export default function Explorer() {
   const [showRoads, setShowRoads] = useState(true)
   const [showLabels, setShowLabels] = useState(true)
   const [selected, setSelected] = useState(initial.selected)
+  const [selectedFeature, setSelectedFeature] = useState<SelectedFeature | null>(initial.feature)
+  const [card, setCard] = useState<{ layer: ThematicLayer; card: FeatureCard } | null>(null)
   const [layersOpen, setLayersOpen] = useState(false)
   const [sheetExpanded, setSheetExpanded] = useState(false)
   const [shareStatus, setShareStatus] = useState('')
@@ -49,13 +52,28 @@ export default function Explorer() {
 
   // Keep the URL in sync so any view can be shared (PRD §21).
   const urlState = useMemo(
-    () => serializeUrlState({ ...view, layers: active, opacity, basemap, selected }),
-    [view, active, opacity, basemap, selected],
+    () => serializeUrlState({ ...view, layers: active, opacity, basemap, selected, feature: selectedFeature }),
+    [view, active, opacity, basemap, selected, selectedFeature],
   )
   useEffect(() => {
     const t = setTimeout(() => window.history.replaceState(null, '', `/${urlState}`), 250)
     return () => clearTimeout(t)
   }, [urlState])
+
+  // Resolve the clicked feature (e.g. a vendor) into a card via its layer's describeFeature.
+  useEffect(() => {
+    setCard(null)
+    const layer = selectedFeature && layerById(selectedFeature.layerId)
+    if (!layer?.describeFeature || layer.source.type !== 'geojson-points') return
+    let cancelled = false
+    loadJson<GeoJSON.FeatureCollection>(layer.source.url).then((fc) => {
+      const f = fc.features.find((x) => String(x.properties?.id) === selectedFeature!.id)
+      if (!cancelled && f?.properties) setCard({ layer, card: layer.describeFeature!(f.properties) })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [selectedFeature])
 
   const feature = useMemo(
     () => (polygons && selected ? findSoilAt(polygons, selected.lng, selected.lat) : null),
@@ -72,11 +90,13 @@ export default function Explorer() {
   const onSearchPick = useCallback((r: { lat: number; lng: number; zoom: number }) => {
     setFlyTo({ lat: r.lat, lng: r.lng, zoom: r.zoom, key: ++flyCounter.current })
     setSelected({ lat: r.lat, lng: r.lng })
+    setSelectedFeature(null)
     setSheetExpanded(false)
   }, [])
 
-  const onSelect = useCallback((p: { lat: number; lng: number }) => {
+  const onSelect = useCallback((p: { lat: number; lng: number }, f?: SelectedFeature) => {
     setSelected(p)
+    setSelectedFeature(f ?? null)
     setSheetExpanded(false)
   }, [])
 
@@ -118,7 +138,11 @@ export default function Explorer() {
       feature={feature}
       unit={unit}
       loading={!polygons && !loadError}
-      onClose={() => setSelected(null)}
+      onClose={() => {
+        setSelected(null)
+        setSelectedFeature(null)
+      }}
+      card={card}
       onShare={share}
       shareStatus={shareStatus}
     />

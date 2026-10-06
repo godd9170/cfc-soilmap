@@ -6,6 +6,7 @@ const NATURE_LABEL = {
   observed: 'Observed historical mapping',
   modeled: 'Modern modeled prediction',
   compiled: 'Compiled interpretive mapping',
+  reference: 'Reference listing',
 }
 
 export default function About() {

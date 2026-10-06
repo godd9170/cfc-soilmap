@@ -8,6 +8,8 @@ export interface MapUrlState {
   opacity: Record<string, number>
   basemap: Basemap
   selected: { lat: number; lng: number } | null
+  /** A selected clickable feature, e.g. a vendor: `feat=vendors:brackens`. */
+  feature: { layerId: string; id: string } | null
 }
 
 export const DEFAULT_STATE: MapUrlState = {
@@ -18,6 +20,7 @@ export const DEFAULT_STATE: MapUrlState = {
   opacity: {},
   basemap: 'streets',
   selected: null,
+  feature: null,
 }
 
 const num = (v: string | null, min: number, max: number): number | null => {
@@ -43,6 +46,8 @@ export function parseUrlState(search: string, knownLayers: Set<string>): MapUrlS
   const slat = num(sel[0] ?? null, -90, 90)
   const slng = num(sel[1] ?? null, -180, 180)
   if (slat !== null && slng !== null) s.selected = { lat: slat, lng: slng }
+  const [fl, ...fid] = (p.get('feat') ?? '').split(':')
+  if (fl && knownLayers.has(fl) && fid.length && s.selected) s.feature = { layerId: fl, id: fid.join(':') }
   return s
 }
 
@@ -56,6 +61,7 @@ export function serializeUrlState(s: MapUrlState): string {
   if (op.length) p.set('op', op.join(','))
   if (s.basemap !== 'streets') p.set('base', s.basemap)
   if (s.selected) p.set('sel', `${s.selected.lat.toFixed(5)},${s.selected.lng.toFixed(5)}`)
+  if (s.selected && s.feature) p.set('feat', `${s.feature.layerId}:${s.feature.id}`)
   // Keep commas and colons readable in shared links.
   return '?' + p.toString().replace(/%2C/g, ',').replace(/%3A/g, ':')
 }

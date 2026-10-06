@@ -28,13 +28,18 @@ export function SoilLegend({ units }: { units: SoilUnit[] }) {
 
 export function LayerLegend({ layer }: { layer: ThematicLayer }) {
   const lg = layer.legend
+  if (!lg) return null
   if (Array.isArray(lg)) {
     if (!lg.length) return null
     return (
       <ul className="grid gap-1 text-xs text-stone-800">
         {lg.map((i) => (
           <li key={i.label} className="flex items-center gap-2">
-            <Swatch colour={i.colour} />
+            {i.image ? (
+              <img src={i.image} alt="" className="size-5 shrink-0 rounded-full border border-black/20" />
+            ) : (
+              <Swatch colour={i.colour} />
+            )}
             <span>{i.label}</span>
           </li>
         ))}

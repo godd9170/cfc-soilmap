@@ -1,4 +1,7 @@
+import { VectorTile } from '@mapbox/vector-tile'
 import type { Feature, FeatureCollection, MultiPolygon, Polygon, Position } from 'geojson'
+import { PbfReader } from 'pbf'
+import { PMTiles } from 'pmtiles'
 
 /* ---------- GeoJSON point-in-polygon ---------- */
 
@@ -95,4 +98,50 @@ export async function sampleGrid(id: string, lng: number, lat: number): Promise<
     value: data.data[i] / meta.props[id].scale,
     source: data.data[i + 1] === 1 ? 'AAFC Soil Landscape Grids (100 m)' : 'ISRIC SoilGrids 2.0 (250 m)',
   }
+}
+
+/* ---------- Vector PMTiles (large polygon layers, fetched one tile at a time) ---------- */
+
+const archives = new Map<string, PMTiles>()
+
+/**
+ * Properties of the polygon under a point in a vector PMTiles archive. Reads only the
+ * single max-zoom tile containing the point, so large layers never download wholesale.
+ */
+export async function pmtilesFeatureAt(
+  url: string,
+  sourceLayer: string,
+  lng: number,
+  lat: number,
+): Promise<Record<string, unknown> | null> {
+  let archive = archives.get(url)
+  if (!archive) archives.set(url, (archive = new PMTiles(url)))
+  const header = await archive.getHeader()
+  const z = header.maxZoom
+  const n = 2 ** z
+  const fx = ((lng + 180) / 360) * n
+  const fy = ((1 - Math.asinh(Math.tan((lat * Math.PI) / 180)) / Math.PI) / 2) * n
+  const tx = Math.floor(fx)
+  const ty = Math.floor(fy)
+  const tile = await archive.getZxy(z, tx, ty)
+  if (!tile) return null
+  const layer = new VectorTile(new PbfReader(new Uint8Array(tile.data))).layers[sourceLayer]
+  if (!layer) return null
+  const px = (fx - tx) * layer.extent
+  const py = (fy - ty) * layer.extent
+  for (let i = 0; i < layer.length; i++) {
+    const f = layer.feature(i)
+    if (f.type !== 3) continue
+    // Even-odd test across all rings handles holes and multipolygons alike.
+    let inside = false
+    for (const ring of f.loadGeometry()) {
+      for (let a = 0, b = ring.length - 1; a < ring.length; b = a++) {
+        const p = ring[a]
+        const q = ring[b]
+        if (p.y > py !== q.y > py && px < ((q.x - p.x) * (py - p.y)) / (q.y - p.y) + p.x) inside = !inside
+      }
+    }
+    if (inside) return f.properties
+  }
+  return null
 }
