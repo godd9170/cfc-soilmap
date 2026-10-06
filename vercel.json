@@ -6,6 +6,6 @@
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/((?!data/|assets/|favicon).*)", "destination": "/index.html" }],
   "headers": [
-    { "source": "/data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
+    { "source": "/data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] }
   ]
 }
