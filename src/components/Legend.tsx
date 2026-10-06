@@ -11,18 +11,51 @@ export function Swatch({ colour, className = '' }: { colour: string; className?:
   )
 }
 
-export function SoilLegend({ units }: { units: SoilUnit[] }) {
+/** Soil series legend; each row toggles highlighting of that series' polygons on the map. */
+export function SoilLegend({
+  units,
+  highlighted,
+  onToggle,
+  onClear,
+}: {
+  units: SoilUnit[]
+  highlighted: string[]
+  onToggle: (symbol: string) => void
+  onClear: () => void
+}) {
   const sorted = [...units].sort((a, b) => (b.acreage ?? 0) - (a.acreage ?? 0))
   return (
-    <ul className="grid gap-1 text-xs text-stone-800">
-      {sorted.map((u) => (
-        <li key={u.symbol} className="flex items-center gap-2">
-          <Swatch colour={SOIL_COLOURS[u.symbol] ?? '#ccc'} />
-          <span className="w-9 shrink-0 font-mono text-[11px] text-stone-600">{u.symbol}</span>
-          <span className="truncate">{u.type_name}</span>
-        </li>
-      ))}
-    </ul>
+    <div className="min-w-0">
+      <div className="mb-1 flex min-h-6 items-center justify-between gap-2 text-xs text-stone-600">
+        <span>{highlighted.length ? `${highlighted.length} highlighted` : 'Select a soil to highlight it'}</span>
+        {highlighted.length > 0 && (
+          <button type="button" onClick={onClear} className="font-medium text-moss-700 underline-offset-2 hover:underline">
+            Clear
+          </button>
+        )}
+      </div>
+      <ul className="grid min-w-0 grid-cols-1 gap-0.5 text-xs text-stone-800">
+        {sorted.map((u) => {
+          const on = highlighted.includes(u.symbol)
+          return (
+            <li key={u.symbol} className="min-w-0">
+              <button
+                type="button"
+                onClick={() => onToggle(u.symbol)}
+                aria-pressed={on}
+                className={`flex w-full min-w-0 items-start gap-2 rounded px-1 py-0.5 text-left hover:bg-stone-200/60 focus-visible:outline-2 focus-visible:outline-moss-600 ${
+                  on ? 'bg-moss-100 ring-1 ring-moss-500' : ''
+                }`}
+              >
+                <Swatch colour={SOIL_COLOURS[u.symbol] ?? '#ccc'} className="mt-px" />
+                <span className="w-10 shrink-0 font-mono text-[11px] break-all text-stone-600">{u.symbol}</span>
+                <span className={`min-w-0 flex-1 break-words ${on ? 'font-semibold' : ''}`}>{u.type_name}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
   )
 }
 
@@ -40,7 +73,7 @@ export function LayerLegend({ layer }: { layer: ThematicLayer }) {
             ) : (
               <Swatch colour={i.colour} />
             )}
-            <span>{i.label}</span>
+            <span className="min-w-0 break-words">{i.label}</span>
           </li>
         ))}
       </ul>

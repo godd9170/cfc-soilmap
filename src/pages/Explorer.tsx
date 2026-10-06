@@ -28,6 +28,8 @@ export default function Explorer() {
   const [selectedFeature, setSelectedFeature] = useState<SelectedFeature | null>(initial.feature)
   const [card, setCard] = useState<{ layer: ThematicLayer; card: FeatureCard } | null>(null)
   const [layersOpen, setLayersOpen] = useState(false)
+  const [panelCollapsed, setPanelCollapsed] = useState(false)
+  const [highlightedSoils, setHighlightedSoils] = useState<string[]>([])
   const [sheetExpanded, setSheetExpanded] = useState(false)
   const [shareStatus, setShareStatus] = useState('')
   const [identifyCentre, setIdentifyCentre] = useState(0)
@@ -116,7 +118,12 @@ export default function Explorer() {
   }
 
   const unitList = useMemo(() => Object.values(units), [units])
-  const layerPanel = (
+  const toggleSoil = useCallback(
+    (symbol: string) => setHighlightedSoils((h) => (h.includes(symbol) ? h.filter((x) => x !== symbol) : [...h, symbol])),
+    [],
+  )
+
+  const layerPanel = (onCollapse?: () => void) => (
     <LayerPanel
       active={active}
       opacity={opacity}
@@ -124,6 +131,10 @@ export default function Explorer() {
       showRoads={showRoads}
       showLabels={showLabels}
       units={unitList}
+      highlightedSoils={highlightedSoils}
+      onToggleSoil={toggleSoil}
+      onClearSoils={() => setHighlightedSoils([])}
+      onCollapse={onCollapse}
       onToggle={toggleLayer}
       onOpacity={(id, v) => setOpacity((o) => ({ ...o, [id]: v }))}
       onBasemap={setBasemap}
@@ -154,9 +165,24 @@ export default function Explorer() {
 
       <div className="relative flex min-h-0 flex-1">
         {/* Desktop layer panel */}
-        <aside className="hidden w-72 shrink-0 overflow-y-auto border-r border-stone-200 bg-paper lg:block">
-          {layerPanel}
-        </aside>
+        {panelCollapsed ? (
+          <aside aria-label="Map layers (collapsed)" className="hidden w-11 shrink-0 border-r border-stone-200 bg-paper lg:block">
+            <button
+              type="button"
+              onClick={() => setPanelCollapsed(false)}
+              aria-label="Expand layer panel"
+              title="Expand layer panel"
+              className="flex w-full flex-col items-center gap-3 py-3 text-stone-700 hover:bg-stone-200/60 hover:text-stone-900 focus-visible:outline-2 focus-visible:outline-moss-600"
+            >
+              <span aria-hidden="true" className="text-lg leading-none">»</span>
+              <span className="text-xs font-semibold tracking-wider uppercase [writing-mode:vertical-rl]">Layers</span>
+            </button>
+          </aside>
+        ) : (
+          <aside className="hidden w-72 shrink-0 overflow-x-hidden overflow-y-auto border-r border-stone-200 bg-paper lg:block">
+            {layerPanel(() => setPanelCollapsed(true))}
+          </aside>
+        )}
 
         <main id="main" className="relative min-w-0 flex-1" aria-label="Map">
           <MapView
@@ -168,6 +194,7 @@ export default function Explorer() {
             basemap={basemap}
             showRoads={showRoads}
             showLabels={showLabels}
+            highlightedSoils={highlightedSoils}
             selected={selected}
             selectedPolygonId={feature && feature.properties.symbol !== 'UNK' ? feature.properties.id : null}
             onViewChange={setView}
@@ -256,7 +283,7 @@ export default function Explorer() {
                   Done
                 </button>
               </div>
-              {layerPanel}
+              {layerPanel()}
             </div>
           </div>
         )}
