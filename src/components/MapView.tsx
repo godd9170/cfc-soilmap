@@ -8,6 +8,7 @@ import {
   ScaleControl,
   addProtocol,
   setWorkerUrl,
+  type ExpressionSpecification,
   type LayerSpecification,
 } from 'maplibre-gl'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
@@ -49,6 +50,8 @@ interface Props {
   basemap: Basemap
   showRoads: boolean
   showLabels: boolean
+  /** 1948 soil symbols picked in the legend; their polygons are emphasised and the rest dimmed. */
+  highlightedSoils: string[]
   selected: { lat: number; lng: number } | null
   selectedPolygonId: number | null
   onViewChange: (v: ViewState) => void
@@ -184,6 +187,15 @@ export default function MapView(props: Props) {
       })
 
       map.addLayer({
+        id: 'pec-soil1948-highlight',
+        type: 'line',
+        source: SOIL_SOURCE,
+        layout: { visibility: 'none' },
+        filter: ['in', ['get', 'symbol'], ['literal', []]],
+        paint: { 'line-color': '#111', 'line-width': ['interpolate', ['linear'], ['zoom'], 9, 1.2, 14, 2.5] },
+      })
+
+      map.addLayer({
         id: 'pec-selected-line',
         type: 'line',
         source: SOIL_SOURCE,
@@ -253,7 +265,19 @@ export default function MapView(props: Props) {
       for (const id of h.ids) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none')
       h.setOpacity(map, opacityOf(layer, p.opacity))
     }
-    map.setLayoutProperty('pec-soil1948-label', 'visibility', p.activeLayers.includes('soil1948') ? 'visible' : 'none')
+    const soilOn = p.activeLayers.includes('soil1948')
+    map.setLayoutProperty('pec-soil1948-label', 'visibility', soilOn ? 'visible' : 'none')
+
+    // Legend highlight: picked soils at least 75% opaque and outlined, everything else faded.
+    const soilLayer = LAYERS.find((l) => l.id === 'soil1948')
+    const picked = p.highlightedSoils
+    if (soilLayer && handles.current.has('soil1948') && picked.length) {
+      const op = opacityOf(soilLayer, p.opacity)
+      const isPicked: ExpressionSpecification = ['in', ['get', 'symbol'], ['literal', picked]]
+      map.setPaintProperty('pec-soil1948-fill', 'fill-opacity', ['case', isPicked, Math.max(op, 0.75), op * 0.25])
+    }
+    map.setFilter('pec-soil1948-highlight', ['in', ['get', 'symbol'], ['literal', picked]])
+    map.setLayoutProperty('pec-soil1948-highlight', 'visibility', soilOn && picked.length ? 'visible' : 'none')
     map.setFilter('pec-selected-line', ['==', ['get', 'id'], p.selectedPolygonId ?? -1])
   }
 
@@ -263,6 +287,7 @@ export default function MapView(props: Props) {
     props.basemap,
     props.showRoads,
     props.showLabels,
+    props.highlightedSoils,
     props.selectedPolygonId,
   ])
 
