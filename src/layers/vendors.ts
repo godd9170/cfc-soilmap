@@ -25,7 +25,7 @@ export const vendors: ThematicLayer = {
     year: '2026',
     resolution: 'Civic address points',
     methodology:
-      'Vendor listings exported from Local Line. Addresses are located with Prince Edward County’s NG9-1-1 civic address points, falling back to OpenStreetMap Nominatim. Logos come from the County Farm Collective vendors page.',
+      'Vendor listings exported from Local Line; products and prices are loaded live from the County Farm Collective storefront when a vendor is selected. Addresses are located with Prince Edward County’s NG9-1-1 civic address points, falling back to OpenStreetMap Nominatim. Logos come from the County Farm Collective vendors page.',
     url: 'https://www.countyfarmcollective.com/vendors',
     licence: 'Listing content © the vendors and the County Farm Collective.',
     limitations: 'Only vendors with a public address are shown. Pins mark the civic address, not field locations.',
@@ -49,6 +49,7 @@ export const vendors: ThematicLayer = {
         s('since') && { label: 'Vendor since', value: s('since') },
       ].filter(Boolean) as { label: string; value: string }[],
       links,
+      storefrontVendor: typeof p.ll_vendor_id === 'number' ? { id: p.ll_vendor_id, slug: s('ll_vendor_slug') } : undefined,
       note: p.approx ? 'Location is approximate: the address matched a road, not a specific property.' : undefined,
     }
   },
