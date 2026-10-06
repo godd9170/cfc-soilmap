@@ -2,7 +2,7 @@
  * Live product listings from the County Farm Collective's Local Line storefront.
  *
  * Local Line's storefront API sends no CORS headers, so requests go through a same-origin
- * proxy at /localline (vite.config.ts in dev, vercel.json in production) that forwards to
+ * proxy at /localline (vite.config.ts in dev, api/localline.ts on Vercel) that forwards to
  * https://localline.ca/api/storefront/v2. Every call needs a short-lived anonymous token.
  */
 const API = '/localline'
