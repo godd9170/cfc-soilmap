@@ -10,8 +10,12 @@ never written out; Internal Address is only compared against Location to flag mi
 
 Geocoding uses Prince Edward County's NG9-1-1 civic address points first (exact site
 locations), then OpenStreetMap Nominatim (1 request/second) for anything without a house
-number match. Results are cached in pipeline/vendors/geocodes.json. To pin a vendor by hand, add it to
-pipeline/vendors/overrides.json: {"Vendor name": {"lat": 44.0, "lng": -77.1}}.
+number match. Results are cached in pipeline/vendors/geocodes.json. To fix a vendor by hand, add it to
+pipeline/vendors/overrides.json, either with a public address (geocoded like the CSV's Location)
+or with exact coordinates:
+  {"Vendor name": {"address": "2252 County Rd 7, Picton, ON K0K 2T0"}}
+  {"Vendor name": {"lat": 44.0, "lng": -77.1}}
+  {"Vendor name": {"exclude": true}}   (leave a vendor off the map)
 Logos are matched by name from the images on the County Farm Collective vendors page.
 
 Run: uv run --with pillow python pipeline/build_vendors.py [path/to/export.csv]
@@ -39,7 +43,7 @@ OVERRIDES = ROOT / "pipeline/vendors/overrides.json"
 SITE = "https://www.countyfarmcollective.com"
 UA = "pec-soil-explorer-pipeline (County Farm Collective vendor map)"
 PEC_VIEWBOX = "-77.75,44.25,-76.70,43.78"
-TOWNS = re.compile(r"picton|prince edward|wellington|bloomfield|milford|cherry ?valley|demorestville|consecon|ameliasburgh|hillier|rossmore|cressy|waupoos|northport|carrying place", re.I)
+TOWNS = re.compile(r"\bpec\b|picton|prince edward|wellington|bloomfield|milford|cherry ?valley|demorestville|consecon|ameliasburgh|hillier|rossmore|cressy|waupoos|northport|carrying place", re.I)
 ROAD_WORD = re.compile(r"\b(road|rd|street|st|drive|dr|lane|line|avenue|ave|way|sideroad)\b", re.I)
 
 
@@ -86,6 +90,10 @@ def clean_address(addr: str) -> str:
     a = ", ".join(parts)
     a = re.sub(r"\b(cty|county)\.?\s+rd\.?\b", "County Road", a, flags=re.I)
     a = re.sub(r"\bcty\b", "County", a, flags=re.I)
+    a = re.sub(r",?\s*\bPEC\b", ", Prince Edward County", a)
+    a = re.sub(r"\bPrince Edward County Road\b", "County Road", a, flags=re.I)  # "Prince Edward County Rd 16"
+    # Civic addressing names each village's main street after it: "58 Main St, Picton" -> "58 Picton Main Street".
+    a = re.sub(r"\b(\d+)\s+main\s+st(?:reet)?\.?\b,?\s*(picton|wellington|bloomfield)\b", lambda m: f"{m[1]} {m[2].title()} Main Street, {m[2].title()}", a, flags=re.I)
     a = re.sub(r",?\s*\bcanada\b", "", a, flags=re.I)
     if not TOWNS.search(a):
         a += ", Prince Edward County, Ontario"
@@ -228,10 +236,14 @@ def main():
             issues.append((name, ["disabled in Local Line (Enabled = N), not published"]))
             continue
 
-        location = (r.get("Location") or "").strip()
+        override = overrides.get(name, {})
+        if override.get("exclude"):
+            issues.append((name, ["excluded in pipeline/vendors/overrides.json, not published"]))
+            continue
+        location = (override.get("address") or r.get("Location") or "").strip()
         point, approx = None, False
-        if name in overrides:
-            point = overrides[name]
+        if "lat" in override and "lng" in override:
+            point = {"lat": override["lat"], "lng": override["lng"]}
         elif location:
             g = geocode(location, cache)
             if g:

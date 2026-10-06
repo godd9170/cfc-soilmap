@@ -1,4 +1,11 @@
 {
+ "1280 County Road 7, Prince Edward County": {
+  "display": "PEC civic address (Add_Number=1280 AND St_PreTyp='County Road' AND St_Name='7')",
+  "lat": 44.036259511473546,
+  "lng": -77.00279466228363,
+  "query": "1280 County Road 7, Prince Edward County",
+  "type": "house"
+ },
  "1418 County Road 8, Prince Edward County, Ontario": {
   "display": "PEC civic address (Add_Number=1418 AND St_PreTyp='County Road' AND St_Name='8')",
   "lat": 44.00890039240278,
@@ -27,11 +34,32 @@
   "query": "1927 County Road 10, Picton, On, K0K 2P0",
   "type": "house"
  },
+ "1950 County Road 7, Prince Edward County, Ontario": {
+  "display": "PEC civic address (Add_Number=1950 AND St_PreTyp='County Road' AND St_Name='7')",
+  "lat": 44.04773433092005,
+  "lng": -76.96462557556353,
+  "query": "1950 County Road 7, Prince Edward County, Ontario",
+  "type": "house"
+ },
+ "212 County Road 16, Prince Edward, ON K0K 2P0": {
+  "display": "PEC civic address (Add_Number=212 AND St_PreTyp='County Road' AND St_Name='16')",
+  "lat": 43.96846123754071,
+  "lng": -77.03730814981381,
+  "query": "212 County Road 16, Prince Edward, ON K0K 2P0",
+  "type": "house"
+ },
  "2209 County Road 7, Prince Edward County, Ontario": {
   "display": "PEC civic address (Add_Number=2209 AND St_PreTyp='County Road' AND St_Name='7')",
   "lat": 44.05316587149735,
   "lng": -76.95095301097945,
   "query": "2209 County Road 7, Prince Edward County, Ontario",
+  "type": "house"
+ },
+ "2252 County Road 7, Picton, ON K0K 2T0": {
+  "display": "PEC civic address (Add_Number=2252 AND St_PreTyp='County Road' AND St_Name='7')",
+  "lat": 44.052369563741536,
+  "lng": -76.94728688622766,
+  "query": "2252 County Road 7, Picton, ON K0K 2T0",
   "type": "house"
  },
  "240 County Road 4, Prince Edward, ON K0K 2T0": {
@@ -53,6 +81,13 @@
   "lat": 44.06808378814168,
   "lng": -77.13291432129213,
   "query": "339 Elmbrook Road, Picton, ON K0K 2T0",
+  "type": "house"
+ },
+ "58 Picton Main Street, Picton": {
+  "display": "PEC civic address (Add_Number=58 AND UPPER(St_Name)='PICTON MAIN' AND St_PosTyp='Street')",
+  "lat": 44.00399327066856,
+  "lng": -77.14936553883983,
+  "query": "58 Picton Main Street, Picton",
   "type": "house"
  },
  "722 County Road 7, Picton, Ontario K0K 2T0": {

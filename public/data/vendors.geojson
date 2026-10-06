@@ -78,6 +78,31 @@
   },
   {
    "type": "Feature",
+   "id": "hellyer-organics",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -76.947287,
+     44.05237
+    ]
+   },
+   "properties": {
+    "id": "hellyer-organics",
+    "name": "Hellyer Organics",
+    "description": "Hellyer Organics is a small Market garden in North Marysburg on County Road 7. I have owned my farm for over 40 years and strive to be a conscientious steward of the land. I have been selling organic, heirloom tomato and vegetable seedlings for seven years, and I have just entering the market place selling the produce in the last few years.\n\nI firmly believe that people should buy their food locally for environmental reasons and what they buy, should be produced in a sustainable and organic manner: and by organic, I don't just mean not using herbicide and pesticides, but by enriching the soil, so the plants are healthy and rotating my crops to ensure this.\n\nI invite the public to come and see my small Market garden anytime during the spring and summer.",
+    "website": "",
+    "address": "2252 County Rd 7, Picton, ON K0K 2T0",
+    "phone": "",
+    "email": "organic@kos.net",
+    "certifications": "",
+    "since": "01 Jun 2026",
+    "logo": "/data/vendors/hellyer-organics.png",
+    "icon": "/data/vendors/hellyer-organics-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
    "id": "lambs-quarters-farm",
    "geometry": {
     "type": "Point",
@@ -103,6 +128,56 @@
   },
   {
    "type": "Feature",
+   "id": "mohawk-bison-ranch",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.002795,
+     44.03626
+    ]
+   },
+   "properties": {
+    "id": "mohawk-bison-ranch",
+    "name": "Mohawk Bison Ranch",
+    "description": "Leaf LeFort is a Kanien’kehá:ka rancher raising bison right here in Prince Edward County. His herd grazes the land along County Road 7, producing exceptional local meat rooted in land, culture, and stewardship. It’s a rare opportunity to buy bison raised close to home, directly supporting a local producer while bringing something truly special to your table.",
+    "website": "",
+    "address": "1280 County Road 7 PEC",
+    "phone": "",
+    "email": "Leaflefort@gmail.com",
+    "certifications": "",
+    "since": "23 Aug 2026",
+    "logo": "/data/vendors/mohawk-bison-ranch.png",
+    "icon": "/data/vendors/mohawk-bison-ranch-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "nomad-mushrooms-pec",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.149366,
+     44.003993
+    ]
+   },
+   "properties": {
+    "id": "nomad-mushrooms-pec",
+    "name": "Nomad Mushrooms PEC",
+    "description": "Grown by Nigel🍄 Est. 2018\n\nAll profits donated to Hospice Prince Edward Foundation",
+    "website": "",
+    "address": "58 Main Street, Picton",
+    "phone": "",
+    "email": "nomadmushroomspec@gmail.com",
+    "certifications": "",
+    "since": "06 May 2025",
+    "logo": "/data/vendors/nomad-mushrooms-pec.png",
+    "icon": "/data/vendors/nomad-mushrooms-pec-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
    "id": "onceupona-farm",
    "geometry": {
     "type": "Point",
@@ -123,6 +198,31 @@
     "since": "08 Sep 2026",
     "logo": "/data/vendors/onceupona-farm.png",
     "icon": "/data/vendors/onceupona-farm-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "paper-kite",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -77.037308,
+     43.968461
+    ]
+   },
+   "properties": {
+    "id": "paper-kite",
+    "name": "Paper Kite",
+    "description": "",
+    "website": "https://paperkite.farm",
+    "address": "212 Prince Edward County Rd 16, Prince Edward, ON K0K 2P0",
+    "phone": "",
+    "email": "hans@paperkite.farm",
+    "certifications": "",
+    "since": "17 May 2026",
+    "logo": "/data/vendors/paper-kite.png",
+    "icon": "/data/vendors/paper-kite-icon.png",
     "approx": false
    }
   },
@@ -203,6 +303,31 @@
   },
   {
    "type": "Feature",
+   "id": "rorafresh",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -76.964626,
+     44.047734
+    ]
+   },
+   "properties": {
+    "id": "rorafresh",
+    "name": "Rorafresh",
+    "description": "Rorafresh farms is a small market garden in Cressy, Prince Edward County. For over 30 years, we have produced fresh food for family, friends and neighbours. Starting in 2022 we scaled up operations. Focusing on the shoulder season (October - May), Rorafresh is able to deliver fresh produce thanks to our focus on our Passive Solar Greenhouse.",
+    "website": "",
+    "address": "1950 County Rd 7, Canada",
+    "phone": "",
+    "email": "",
+    "certifications": "",
+    "since": "26 Sep 2026",
+    "logo": "/data/vendors/rorafresh.png",
+    "icon": "/data/vendors/rorafresh-icon.png",
+    "approx": false
+   }
+  },
+  {
+   "type": "Feature",
    "id": "sheep-on-7-sourdough",
    "geometry": {
     "type": "Point",
@@ -223,31 +348,6 @@
     "since": "04 Jul 2026",
     "logo": "/data/vendors/sheep-on-7-sourdough.png",
     "icon": "/data/vendors/sheep-on-7-sourdough-icon.png",
-    "approx": false
-   }
-  },
-  {
-   "type": "Feature",
-   "id": "silverwing-mushroom-co",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
-     -77.15334,
-     43.997505
-    ]
-   },
-   "properties": {
-    "id": "silverwing-mushroom-co",
-    "name": "Silverwing Mushroom Co",
-    "description": "At Silverwing Mushroom Co. we cultivate more than just mushrooms — we grow living systems that nourish, restore, and inspire. Specializing in fresh gourmet mushrooms and\n\nthoughtfully crafted mushroom products, our farm is rooted in a deep respect for nature, science, and community.\n\nFrom the delicate, umami-rich oyster mushroom to the striking textures of lion’s mane, every variety we grow is carefully selected for both flavor and function. Whether you’re a home cook, a health enthusiast, or simply curious, our mushrooms invite you to explore a world that’s as delicious as it is fascinating.",
-    "website": "https://www.silverwingmushroomco.com",
-    "address": "146 County Rd 10, Picton, ON K0K 2T0",
-    "phone": "",
-    "email": "rajgetsitdone@gmail.com",
-    "certifications": "",
-    "since": "19 Aug 2026",
-    "logo": "",
-    "icon": "",
     "approx": false
    }
   },

@@ -5,6 +5,7 @@
 
 /** Layer groups, in panel order. `note` is shown under the group's section in the location panel. */
 export const GROUPS = [
+  { id: 'local', title: 'Local food' },
   { id: 'historical', title: 'Historical' },
   {
     id: 'soil',
@@ -12,7 +13,6 @@ export const GROUPS = [
     note: 'Modeled values are estimates from statistical soil models at about 100 m resolution. Conditions may vary substantially within a field; these are not field measurements or soil tests. Depth over bedrock is the typical depth for the 1948 soil type.',
   },
   { id: 'land', title: 'Land' },
-  { id: 'local', title: 'Local food' },
 ] as const satisfies readonly { id: string; title: string; note?: string }[]
 
 export type LayerGroup = (typeof GROUPS)[number]['id']

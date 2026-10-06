@@ -16,7 +16,7 @@ export const DEFAULT_STATE: MapUrlState = {
   lat: 43.985,
   lng: -77.2,
   zoom: 10.2,
-  layers: ['soil1948'],
+  layers: ['vendors', 'soil1948'],
   opacity: {},
   basemap: 'streets',
   selected: null,

@@ -21,7 +21,7 @@ export const soil1948: ThematicLayer = {
   group: 'historical',
   description: 'Soil series and types mapped by the 1948 survey, as digital polygons.',
   source: { type: 'soil1948', style: 'series' },
-  defaultOpacity: 0.65,
+  defaultOpacity: 0.3,
   attribution: '1948 Soil Survey of PEC (AAFC CanSIS)',
   provenance: SOIL_1948_PROVENANCE,
   caveat: 'Boundary interpreted from a historical soil survey. Actual soil transitions may occur gradually.',
