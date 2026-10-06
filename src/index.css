@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-moss-50: #f3f6ec;
+  --color-moss-100: #e3ead2;
+  --color-moss-200: #c8d6a8;
+  --color-moss-500: #6b7f3e;
+  --color-moss-600: #55692f;
+  --color-moss-700: #435326;
+  --color-moss-800: #33401e;
+  --color-moss-900: #2f3b2a;
+  --color-paper: #faf7f0;
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-stone-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+.pec-marker {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #111;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #111, 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.maplibregl-ctrl-group button {
+  width: 36px;
+  height: 36px;
+}
+
+input[type='range'].pec-range {
+  accent-color: var(--color-moss-700);
+}

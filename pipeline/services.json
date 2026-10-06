@@ -1,0 +1,775 @@
+{
+ "_meta": {
+  "generated": "2026-10-06",
+  "study_area": {
+   "name": "Prince Edward County, Ontario",
+   "bbox_lonlat": [
+    -77.62,
+    43.8,
+    -76.8,
+    44.2
+   ],
+   "bbox_3857": [
+    -8640619,
+    5434544,
+    -8549337,
+    5496445
+   ]
+  },
+  "test_points": {
+   "picton": [
+    -77.1412,
+    44.0077
+   ],
+   "countryside_requested": [
+    -77.25,
+    43.95
+   ],
+   "countryside_alt": [
+    -77.23,
+    43.98
+   ]
+  },
+  "test_point_note": "(-77.25, 43.95) falls in the West Lake marsh (OGS unit 20 'Organic deposits'; SLGC and SoilGrids both NoData there), so an extra land point near Bloomfield (-77.23, 43.98) was also queried.",
+  "maplibre_note": "For ArcGIS export/exportImage URLs, keep JSON parameters percent-encoded (%7B...%7D) so MapLibre only substitutes {bbox-epsg-3857}. All tile templates here return 256x256 EPSG:3857 images. {lon}/{lat} in point_query templates are for the app to fill in (WGS84).",
+  "verification": "All URLs were fetched with curl on 2026-10-06; outputs were checked for PNG validity, file size and visual content."
+ },
+ "layers": [
+  {
+   "id": "depth_to_bedrock",
+   "title": "Depth to bedrock",
+   "status": "NO LIVE TILE/QUERY SERVICE FOUND for Ontario - needs an offline pipeline step",
+   "tile_url": null,
+   "tile_size": 256,
+   "point_query": {
+    "method": "none live; bake into static raster (PMTiles/COG) via pipeline",
+    "url_template": null,
+    "value_path": null,
+    "notes": "SLGC 100m has NO depth-to-bedrock variable (services: bulk_density, cation_exchange_capacity, clay, phcacl2, sand, silt, soil_great_group_taxonomy, soil_organic_carbon). SoilGrids 2.0 WMS has no bedrock layer. No ArcGIS Online/LIO/OGS service for Ontario bedrock depth found (only US datasets)."
+   },
+   "cors_ok": null,
+   "legend": null,
+   "units": "cm (SoilGrids BDTICM) or m (OGS MRD207)",
+   "options": [
+    {
+     "rank": 1,
+     "id": "ogs_mrd207_overburden_thickness",
+     "title": "OGS MRD207 Bedrock Topography and Overburden Thickness Mapping, Southern Ontario (Gao et al. 2006)",
+     "access": "Download only - https://www.geologyontario.mines.gov.on.ca/persistent-linking?publication=MRD207 (record verified in OGS Publications index service). Clip to PEC and tile in pipeline.",
+     "why": "Ontario-specific, built from water-well, borehole and outcrop data; scientifically most defensible for overburden thickness in PEC. Not downloaded/verified pixel-level here.",
+     "licence": "Open Government Licence - Ontario (https://www.ontario.ca/page/open-government-licence-ontario) (confirm on record)"
+    },
+    {
+     "rank": 2,
+     "id": "soilgrids250m_2017_bdticm",
+     "title": "SoilGrids250m (2017) BDTICM - absolute depth to bedrock (Shangguan et al. 2017)",
+     "access": "https://files.isric.org/soilgrids/former/2017-03-10/data/BDTICM_M_250m_ll.tif (8.5 GB int32 GeoTIFF, EPSG:4326, 250 m, NOT tiled (strip), has overviews; HTTP range requests + CORS *). Read remotely with GDAL/rasterio /vsicurl/ and clip the PEC bbox in the pipeline - verified.",
+     "verified_results": {
+      "picton": "482 cm",
+      "countryside_requested(-77.25,43.95)": "NoData (-32768)",
+      "countryside_alt(-77.23,43.98)": "659 cm"
+     },
+     "why_not_primary": "Global model badly overestimates in PEC, where soils are commonly <1 m over Ordovician limestone (OGS mapped 71 'Paleozoic bedrock' polygons in PEC). Use only with heavy caveats.",
+     "licence": "ODbL 1.0 (per file metadata; share-alike)",
+     "nodata": -32768
+    },
+    {
+     "rank": 3,
+     "id": "proxy_from_surficial_geology",
+     "title": "Proxy: OGS MRD128-REV unit 3 'Paleozoic bedrock' / 4 'bedrock-drift complex' (and soil survey shallow-phase soils)",
+     "access": "Use the ogs_surficial_geology layer below; categorical shallow-bedrock indicator, not a depth."
+    }
+   ],
+   "provenance": {
+    "publisher": "see options",
+    "dataset": "see options",
+    "year": null,
+    "resolution": null,
+    "licence": null,
+    "url": null,
+    "limitations": "No AAFC SLGC depth-to-bedrock product exists in the 100 m release."
+   }
+  },
+  {
+   "id": "slgc_clay",
+   "title": "Clay (SLGC 100m)",
+   "status": "WORKS",
+   "tile_url": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/clay/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&f=image&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Clay%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-15%5D%7D%5D%7D&renderingRule=%7B%22rasterFunction%22%3A%22Colormap%22%2C%22rasterFunctionArguments%22%3A%7B%22ColorrampName%22%3A%22Elevation%20%231%22%2C%22Raster%22%3A%7B%22rasterFunction%22%3A%22Stretch%22%2C%22rasterFunctionArguments%22%3A%7B%22StretchType%22%3A5%2C%22Statistics%22%3A%5B%5B0%2C60%2C0%2C1%5D%5D%2C%22Min%22%3A0%2C%22Max%22%3A255%2C%22UseGamma%22%3Afalse%2C%22DRA%22%3Afalse%7D%7D%7D%2C%22outputPixelType%22%3A%22U8%22%7D",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ArcGIS ImageServer getSamples (GET, f=json)",
+    "url_template": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/clay/ImageServer/getSamples?geometry=%7B%22x%22%3A{lon}%2C%22y%22%3A{lat}%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryPoint&returnFirstValueOnly=false&f=json&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Clay%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-5%2C-15%2C-30%5D%7D%5D%7D",
+    "value_path": "samples[i].value (string, '' = NoData); depth in samples[i].attributes.Depth",
+    "notes": "ArcGIS ImageServer getSamples, multidimensional. Returns one sample per depth (Depth = -5/-15/-30 meaning 0-5/5-15/15-30 cm). value is a string; '' means NoData. Depth-weighted 0-30 cm mean = (5*v5 + 10*v15 + 15*v30)/30. Alternative: /identify with mosaicRule values:[d] returns {value:'22.436'} or 'NoData'. To change the displayed depth, swap values:[-15] in the tile URL mosaicRule. JSON in the URL MUST stay percent-encoded so MapLibre does not treat { } as placeholders.",
+    "verified_results": {
+     "picton": {
+      "0-5": 22.44,
+      "5-15": 24.04,
+      "15-30": 31.26
+     },
+     "countryside_requested": "NoData (all depths)",
+     "countryside_alt": {
+      "0-5": 23.31,
+      "5-15": 26.15,
+      "15-30": 28.88
+     }
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "yes - server reflects the request Origin in Access-Control-Allow-Origin (with credentials true) when an Origin header is sent; no ACAO when no Origin (curl without -H Origin). Browser fetch/img loads work.",
+   "legend": {
+    "type": "continuous (client-defined)",
+    "stretch_min": 0,
+    "stretch_max": 60,
+    "ramp": "ArcGIS colour ramp 'Elevation #1' (green->yellow->brown/red), set in renderingRule; draw the legend gradient client-side or change ColorrampName/Statistics. Server default legend: https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/clay/ImageServer/legend?f=json",
+    "nodata": "transparent (png32)"
+   },
+   "units": "% (mass fraction of fine earth)",
+   "provenance": {
+    "publisher": "Agriculture and Agri-Food Canada (AAFC), Canadian Soil Information Service",
+    "dataset": "Soil Landscape Grids of Canada, 100m - Clay",
+    "year": "2025 (published 2025-01-20; flagged 'under evaluation and review')",
+    "resolution": "100 m; depths 0-5, 5-15, 15-30, 30-60, 60-100 cm",
+    "licence": "Open Government Licence - Canada (https://open.canada.ca/en/open-government-licence-canada)",
+    "url": "https://open.canada.ca/data/en/dataset/4d39c9f9-a85c-4bf2-b920-138fdd423384",
+    "limitations": "Machine-learning prediction (~10k pedons, 70 covariates); preliminary product. LARGE NoData holes across PEC (water, wetlands, and many land areas incl. around West Lake/Wellington and several circular gaps) - verified by rendering the whole county. Need a fallback (SoilGrids) where NoData."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, 47-72 KB, real data (Picton Bay NoData transparent); ~0.2 s/tile"
+  },
+  {
+   "id": "slgc_sand",
+   "title": "Sand (SLGC 100m)",
+   "status": "WORKS",
+   "tile_url": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/sand/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&f=image&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Sand%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-15%5D%7D%5D%7D&renderingRule=%7B%22rasterFunction%22%3A%22Colormap%22%2C%22rasterFunctionArguments%22%3A%7B%22ColorrampName%22%3A%22Elevation%20%231%22%2C%22Raster%22%3A%7B%22rasterFunction%22%3A%22Stretch%22%2C%22rasterFunctionArguments%22%3A%7B%22StretchType%22%3A5%2C%22Statistics%22%3A%5B%5B0%2C100%2C0%2C1%5D%5D%2C%22Min%22%3A0%2C%22Max%22%3A255%2C%22UseGamma%22%3Afalse%2C%22DRA%22%3Afalse%7D%7D%7D%2C%22outputPixelType%22%3A%22U8%22%7D",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ArcGIS ImageServer getSamples (GET, f=json)",
+    "url_template": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/sand/ImageServer/getSamples?geometry=%7B%22x%22%3A{lon}%2C%22y%22%3A{lat}%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryPoint&returnFirstValueOnly=false&f=json&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Sand%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-5%2C-15%2C-30%5D%7D%5D%7D",
+    "value_path": "samples[i].value (string, '' = NoData); depth in samples[i].attributes.Depth",
+    "notes": "ArcGIS ImageServer getSamples, multidimensional. Returns one sample per depth (Depth = -5/-15/-30 meaning 0-5/5-15/15-30 cm). value is a string; '' means NoData. Depth-weighted 0-30 cm mean = (5*v5 + 10*v15 + 15*v30)/30. Alternative: /identify with mosaicRule values:[d] returns {value:'22.436'} or 'NoData'. To change the displayed depth, swap values:[-15] in the tile URL mosaicRule. JSON in the URL MUST stay percent-encoded so MapLibre does not treat { } as placeholders.",
+    "verified_results": {
+     "picton": {
+      "0-5": 34.4,
+      "5-15": 31.24,
+      "15-30": 34.78
+     },
+     "countryside_requested": "NoData",
+     "countryside_alt": {
+      "0-5": 32.73,
+      "5-15": 32.59,
+      "15-30": 35.78
+     }
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "yes - server reflects the request Origin in Access-Control-Allow-Origin (with credentials true) when an Origin header is sent; no ACAO when no Origin (curl without -H Origin). Browser fetch/img loads work.",
+   "legend": {
+    "type": "continuous (client-defined)",
+    "stretch_min": 0,
+    "stretch_max": 100,
+    "ramp": "ArcGIS colour ramp 'Elevation #1' (green->yellow->brown/red), set in renderingRule; draw the legend gradient client-side or change ColorrampName/Statistics. Server default legend: https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/sand/ImageServer/legend?f=json",
+    "nodata": "transparent (png32)"
+   },
+   "units": "%",
+   "provenance": {
+    "publisher": "Agriculture and Agri-Food Canada (AAFC), Canadian Soil Information Service",
+    "dataset": "Soil Landscape Grids of Canada, 100m - Sand",
+    "year": "2025 (published 2025-01-20; flagged 'under evaluation and review')",
+    "resolution": "100 m; depths 0-5, 5-15, 15-30, 30-60, 60-100 cm",
+    "licence": "Open Government Licence - Canada (https://open.canada.ca/en/open-government-licence-canada)",
+    "url": "https://open.canada.ca/data/en/dataset/4d39c9f9-a85c-4bf2-b920-138fdd423384",
+    "limitations": "Machine-learning prediction (~10k pedons, 70 covariates); preliminary product. LARGE NoData holes across PEC (water, wetlands, and many land areas incl. around West Lake/Wellington and several circular gaps) - verified by rendering the whole county. Need a fallback (SoilGrids) where NoData."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, 47-72 KB, real data (Picton Bay NoData transparent); ~0.2 s/tile"
+  },
+  {
+   "id": "slgc_silt",
+   "title": "Silt (SLGC 100m)",
+   "status": "WORKS",
+   "tile_url": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/silt/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&f=image&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Silt%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-15%5D%7D%5D%7D&renderingRule=%7B%22rasterFunction%22%3A%22Colormap%22%2C%22rasterFunctionArguments%22%3A%7B%22ColorrampName%22%3A%22Elevation%20%231%22%2C%22Raster%22%3A%7B%22rasterFunction%22%3A%22Stretch%22%2C%22rasterFunctionArguments%22%3A%7B%22StretchType%22%3A5%2C%22Statistics%22%3A%5B%5B0%2C100%2C0%2C1%5D%5D%2C%22Min%22%3A0%2C%22Max%22%3A255%2C%22UseGamma%22%3Afalse%2C%22DRA%22%3Afalse%7D%7D%7D%2C%22outputPixelType%22%3A%22U8%22%7D",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ArcGIS ImageServer getSamples (GET, f=json)",
+    "url_template": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/silt/ImageServer/getSamples?geometry=%7B%22x%22%3A{lon}%2C%22y%22%3A{lat}%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryPoint&returnFirstValueOnly=false&f=json&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Silt%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-5%2C-15%2C-30%5D%7D%5D%7D",
+    "value_path": "samples[i].value (string, '' = NoData); depth in samples[i].attributes.Depth",
+    "notes": "ArcGIS ImageServer getSamples, multidimensional. Returns one sample per depth (Depth = -5/-15/-30 meaning 0-5/5-15/15-30 cm). value is a string; '' means NoData. Depth-weighted 0-30 cm mean = (5*v5 + 10*v15 + 15*v30)/30. Alternative: /identify with mosaicRule values:[d] returns {value:'22.436'} or 'NoData'. To change the displayed depth, swap values:[-15] in the tile URL mosaicRule. JSON in the URL MUST stay percent-encoded so MapLibre does not treat { } as placeholders.",
+    "verified_results": {
+     "picton": {
+      "0-5": 43.17,
+      "5-15": 44.73,
+      "15-30": 33.96
+     },
+     "countryside_requested": "NoData",
+     "countryside_alt": {
+      "0-5": 43.96,
+      "5-15": 41.26,
+      "15-30": 35.34
+     }
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "yes - server reflects the request Origin in Access-Control-Allow-Origin (with credentials true) when an Origin header is sent; no ACAO when no Origin (curl without -H Origin). Browser fetch/img loads work.",
+   "legend": {
+    "type": "continuous (client-defined)",
+    "stretch_min": 0,
+    "stretch_max": 100,
+    "ramp": "ArcGIS colour ramp 'Elevation #1' (green->yellow->brown/red), set in renderingRule; draw the legend gradient client-side or change ColorrampName/Statistics. Server default legend: https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/silt/ImageServer/legend?f=json",
+    "nodata": "transparent (png32)"
+   },
+   "units": "%",
+   "provenance": {
+    "publisher": "Agriculture and Agri-Food Canada (AAFC), Canadian Soil Information Service",
+    "dataset": "Soil Landscape Grids of Canada, 100m - Silt",
+    "year": "2025 (published 2025-01-20; flagged 'under evaluation and review')",
+    "resolution": "100 m; depths 0-5, 5-15, 15-30, 30-60, 60-100 cm",
+    "licence": "Open Government Licence - Canada (https://open.canada.ca/en/open-government-licence-canada)",
+    "url": "https://open.canada.ca/data/en/dataset/4d39c9f9-a85c-4bf2-b920-138fdd423384",
+    "limitations": "Machine-learning prediction (~10k pedons, 70 covariates); preliminary product. LARGE NoData holes across PEC (water, wetlands, and many land areas incl. around West Lake/Wellington and several circular gaps) - verified by rendering the whole county. Need a fallback (SoilGrids) where NoData."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, 47-72 KB, real data (Picton Bay NoData transparent); ~0.2 s/tile"
+  },
+  {
+   "id": "slgc_soc",
+   "title": "Soil organic carbon (SLGC 100m)",
+   "status": "WORKS",
+   "tile_url": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/soil_organic_carbon/ImageServer/exportImage?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&f=image&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Soil%20Organic%20Carbon%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-15%5D%7D%5D%7D&renderingRule=%7B%22rasterFunction%22%3A%22Colormap%22%2C%22rasterFunctionArguments%22%3A%7B%22ColorrampName%22%3A%22Elevation%20%231%22%2C%22Raster%22%3A%7B%22rasterFunction%22%3A%22Stretch%22%2C%22rasterFunctionArguments%22%3A%7B%22StretchType%22%3A5%2C%22Statistics%22%3A%5B%5B0%2C10%2C0%2C1%5D%5D%2C%22Min%22%3A0%2C%22Max%22%3A255%2C%22UseGamma%22%3Afalse%2C%22DRA%22%3Afalse%7D%7D%7D%2C%22outputPixelType%22%3A%22U8%22%7D",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ArcGIS ImageServer getSamples (GET, f=json)",
+    "url_template": "https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/soil_organic_carbon/ImageServer/getSamples?geometry=%7B%22x%22%3A{lon}%2C%22y%22%3A{lat}%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryPoint&returnFirstValueOnly=false&f=json&mosaicRule=%7B%22multidimensionalDefinition%22%3A%5B%7B%22variableName%22%3A%22Soil%20Organic%20Carbon%22%2C%22dimensionName%22%3A%22Depth%22%2C%22values%22%3A%5B-5%2C-15%2C-30%5D%7D%5D%7D",
+    "value_path": "samples[i].value (string, '' = NoData); depth in samples[i].attributes.Depth",
+    "notes": "ArcGIS ImageServer getSamples, multidimensional. Returns one sample per depth (Depth = -5/-15/-30 meaning 0-5/5-15/15-30 cm). value is a string; '' means NoData. Depth-weighted 0-30 cm mean = (5*v5 + 10*v15 + 15*v30)/30. Alternative: /identify with mosaicRule values:[d] returns {value:'22.436'} or 'NoData'. To change the displayed depth, swap values:[-15] in the tile URL mosaicRule. JSON in the URL MUST stay percent-encoded so MapLibre does not treat { } as placeholders.",
+    "verified_results": {
+     "picton": {
+      "0-5": 3.52,
+      "5-15": 3.39,
+      "15-30": 2.85
+     },
+     "countryside_requested": "NoData",
+     "countryside_alt": {
+      "0-5": 4.16,
+      "5-15": 3.44,
+      "15-30": 2.46
+     }
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "yes - server reflects the request Origin in Access-Control-Allow-Origin (with credentials true) when an Origin header is sent; no ACAO when no Origin (curl without -H Origin). Browser fetch/img loads work.",
+   "legend": {
+    "type": "continuous (client-defined)",
+    "stretch_min": 0,
+    "stretch_max": 10,
+    "ramp": "ArcGIS colour ramp 'Elevation #1' (green->yellow->brown/red), set in renderingRule; draw the legend gradient client-side or change ColorrampName/Statistics. Server default legend: https://agriculture.canada.ca/imagery-images/rest/services/soil_landscape_grids_100m/soil_organic_carbon/ImageServer/legend?f=json",
+    "nodata": "transparent (png32)"
+   },
+   "units": "% (service range 0-60; stretch 0-10 shown)",
+   "provenance": {
+    "publisher": "Agriculture and Agri-Food Canada (AAFC), Canadian Soil Information Service",
+    "dataset": "Soil Landscape Grids of Canada, 100m - Soil organic carbon",
+    "year": "2025 (published 2025-01-20; flagged 'under evaluation and review')",
+    "resolution": "100 m; depths 0-5, 5-15, 15-30, 30-60, 60-100 cm",
+    "licence": "Open Government Licence - Canada (https://open.canada.ca/en/open-government-licence-canada)",
+    "url": "https://open.canada.ca/data/en/dataset/4d39c9f9-a85c-4bf2-b920-138fdd423384",
+    "limitations": "Machine-learning prediction (~10k pedons, 70 covariates); preliminary product. LARGE NoData holes across PEC (water, wetlands, and many land areas incl. around West Lake/Wellington and several circular gaps) - verified by rendering the whole county. Need a fallback (SoilGrids) where NoData."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, 47-72 KB, real data (Picton Bay NoData transparent); ~0.2 s/tile"
+  },
+  {
+   "id": "soilgrids_clay",
+   "title": "Clay - ISRIC SoilGrids 2.0 (fallback)",
+   "status": "WORKS (tiles + REST point query); WMS GetFeatureInfo does NOT work",
+   "tile_url": "https://maps.isric.org/mapserv?map=/map/clay.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=clay_0-5cm_mean&STYLES=&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=true",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ISRIC SoilGrids REST API v2.0 properties/query (GET)",
+    "url_template": "https://rest.isric.org/soilgrids/v2.0/properties/query?lon={lon}&lat={lat}&property=clay&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean",
+    "value_path": "properties.layers[0].depths[k].values.mean (integer in mapped units; null = NoData); divide by properties.layers[0].unit_measure.d_factor",
+    "notes": "Layer names: {prop}_{0-5cm|5-15cm|15-30cm|30-60cm|60-100cm|100-200cm}_{mean|Q0.05|Q0.5|Q0.95|uncertainty}. REST API is labelled beta with fair-use limit (~5 req/min) - cache results; ~0.3-5 s latency. WMS GetFeatureInfo (text/plain, gml, geo+json; 1.1.1 and 1.3.0) always returned 'Search returned no results' - unusable. Alternative verified: WCS 2.0.1 GetCoverage https://maps.isric.org/mapserv?map=/map/clay.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=clay_0-5cm_mean&FORMAT=image/tiff&SUBSET=long(minlon,maxlon)&SUBSET=lat(minlat,maxlat)&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326 (int16 GeoTIFF, 0=NoData, CORS *) - good for a one-off pipeline clip of PEC.",
+    "verified_results": {
+     "picton": "null (urban mask) for 0-5/5-15/15-30",
+     "countryside_requested": "null (marsh/water)",
+     "countryside_alt": {
+      "0-5": "224 g/kg = 22.4 %"
+     }
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: * on WMS, WCS and REST API.",
+   "legend": {
+    "type": "server SLD (default style)",
+    "url": "https://maps.isric.org/mapserv?map=/map/clay.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=clay_0-5cm_mean&FORMAT=image/png&SLD_VERSION=1.1.0",
+    "notes": "Legend PNG (~57x500) labelled in mapped units (e.g. g/kg, dg/kg), not %."
+   },
+   "units": "g/kg; divide by 10 for %",
+   "provenance": {
+    "publisher": "ISRIC - World Soil Information",
+    "dataset": "SoilGrids 2.0 - Clay",
+    "year": "2020 (Poggio et al. 2021)",
+    "resolution": "250 m (Interrupted Goode Homolosine, reprojected by WMS)",
+    "licence": "CC BY 4.0",
+    "url": "https://soilgrids.org / https://www.isric.org/explore/soilgrids",
+    "limitations": "Global 250 m ML model (Poggio et al. 2021, SOIL 7:217). Coarser than SLGC; urban areas and water masked (Picton town returns null). Values stored as integers: divide by d_factor (10)."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, ~2.5 KB (blocky 250 m pixels), ~0.5 s"
+  },
+  {
+   "id": "soilgrids_sand",
+   "title": "Sand - ISRIC SoilGrids 2.0 (fallback)",
+   "status": "WORKS (tiles + REST point query); WMS GetFeatureInfo does NOT work",
+   "tile_url": "https://maps.isric.org/mapserv?map=/map/sand.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=sand_0-5cm_mean&STYLES=&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=true",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ISRIC SoilGrids REST API v2.0 properties/query (GET)",
+    "url_template": "https://rest.isric.org/soilgrids/v2.0/properties/query?lon={lon}&lat={lat}&property=sand&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean",
+    "value_path": "properties.layers[0].depths[k].values.mean (integer in mapped units; null = NoData); divide by properties.layers[0].unit_measure.d_factor",
+    "notes": "Layer names: {prop}_{0-5cm|5-15cm|15-30cm|30-60cm|60-100cm|100-200cm}_{mean|Q0.05|Q0.5|Q0.95|uncertainty}. REST API is labelled beta with fair-use limit (~5 req/min) - cache results; ~0.3-5 s latency. WMS GetFeatureInfo (text/plain, gml, geo+json; 1.1.1 and 1.3.0) always returned 'Search returned no results' - unusable. Alternative verified: WCS 2.0.1 GetCoverage https://maps.isric.org/mapserv?map=/map/sand.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=sand_0-5cm_mean&FORMAT=image/tiff&SUBSET=long(minlon,maxlon)&SUBSET=lat(minlat,maxlat)&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326 (int16 GeoTIFF, 0=NoData, CORS *) - good for a one-off pipeline clip of PEC.",
+    "verified_results": {
+     "picton": "null (urban mask)",
+     "countryside_requested": "null"
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: * on WMS, WCS and REST API.",
+   "legend": {
+    "type": "server SLD (default style)",
+    "url": "https://maps.isric.org/mapserv?map=/map/sand.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=sand_0-5cm_mean&FORMAT=image/png&SLD_VERSION=1.1.0",
+    "notes": "Legend PNG (~57x500) labelled in mapped units (e.g. g/kg, dg/kg), not %."
+   },
+   "units": "g/kg; divide by 10 for %",
+   "provenance": {
+    "publisher": "ISRIC - World Soil Information",
+    "dataset": "SoilGrids 2.0 - Sand",
+    "year": "2020 (Poggio et al. 2021)",
+    "resolution": "250 m (Interrupted Goode Homolosine, reprojected by WMS)",
+    "licence": "CC BY 4.0",
+    "url": "https://soilgrids.org / https://www.isric.org/explore/soilgrids",
+    "limitations": "Global 250 m ML model (Poggio et al. 2021, SOIL 7:217). Coarser than SLGC; urban areas and water masked (Picton town returns null). Values stored as integers: divide by d_factor (10)."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, ~2.5 KB (blocky 250 m pixels), ~0.5 s"
+  },
+  {
+   "id": "soilgrids_silt",
+   "title": "Silt - ISRIC SoilGrids 2.0 (fallback)",
+   "status": "WORKS (tiles + REST point query); WMS GetFeatureInfo does NOT work",
+   "tile_url": "https://maps.isric.org/mapserv?map=/map/silt.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=silt_0-5cm_mean&STYLES=&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=true",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ISRIC SoilGrids REST API v2.0 properties/query (GET)",
+    "url_template": "https://rest.isric.org/soilgrids/v2.0/properties/query?lon={lon}&lat={lat}&property=silt&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean",
+    "value_path": "properties.layers[0].depths[k].values.mean (integer in mapped units; null = NoData); divide by properties.layers[0].unit_measure.d_factor",
+    "notes": "Layer names: {prop}_{0-5cm|5-15cm|15-30cm|30-60cm|60-100cm|100-200cm}_{mean|Q0.05|Q0.5|Q0.95|uncertainty}. REST API is labelled beta with fair-use limit (~5 req/min) - cache results; ~0.3-5 s latency. WMS GetFeatureInfo (text/plain, gml, geo+json; 1.1.1 and 1.3.0) always returned 'Search returned no results' - unusable. Alternative verified: WCS 2.0.1 GetCoverage https://maps.isric.org/mapserv?map=/map/silt.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=silt_0-5cm_mean&FORMAT=image/tiff&SUBSET=long(minlon,maxlon)&SUBSET=lat(minlat,maxlat)&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326 (int16 GeoTIFF, 0=NoData, CORS *) - good for a one-off pipeline clip of PEC.",
+    "verified_results": {
+     "picton": "null (urban mask)",
+     "countryside_requested": "null"
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: * on WMS, WCS and REST API.",
+   "legend": {
+    "type": "server SLD (default style)",
+    "url": "https://maps.isric.org/mapserv?map=/map/silt.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=silt_0-5cm_mean&FORMAT=image/png&SLD_VERSION=1.1.0",
+    "notes": "Legend PNG (~57x500) labelled in mapped units (e.g. g/kg, dg/kg), not %."
+   },
+   "units": "g/kg; divide by 10 for %",
+   "provenance": {
+    "publisher": "ISRIC - World Soil Information",
+    "dataset": "SoilGrids 2.0 - Silt",
+    "year": "2020 (Poggio et al. 2021)",
+    "resolution": "250 m (Interrupted Goode Homolosine, reprojected by WMS)",
+    "licence": "CC BY 4.0",
+    "url": "https://soilgrids.org / https://www.isric.org/explore/soilgrids",
+    "limitations": "Global 250 m ML model (Poggio et al. 2021, SOIL 7:217). Coarser than SLGC; urban areas and water masked (Picton town returns null). Values stored as integers: divide by d_factor (10)."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, ~2.5 KB (blocky 250 m pixels), ~0.5 s"
+  },
+  {
+   "id": "soilgrids_soc",
+   "title": "Soil organic carbon - ISRIC SoilGrids 2.0 (fallback)",
+   "status": "WORKS (tiles + REST point query); WMS GetFeatureInfo does NOT work",
+   "tile_url": "https://maps.isric.org/mapserv?map=/map/soc.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=soc_0-5cm_mean&STYLES=&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=true",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ISRIC SoilGrids REST API v2.0 properties/query (GET)",
+    "url_template": "https://rest.isric.org/soilgrids/v2.0/properties/query?lon={lon}&lat={lat}&property=soc&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean",
+    "value_path": "properties.layers[0].depths[k].values.mean (integer in mapped units; null = NoData); divide by properties.layers[0].unit_measure.d_factor",
+    "notes": "Layer names: {prop}_{0-5cm|5-15cm|15-30cm|30-60cm|60-100cm|100-200cm}_{mean|Q0.05|Q0.5|Q0.95|uncertainty}. REST API is labelled beta with fair-use limit (~5 req/min) - cache results; ~0.3-5 s latency. WMS GetFeatureInfo (text/plain, gml, geo+json; 1.1.1 and 1.3.0) always returned 'Search returned no results' - unusable. Alternative verified: WCS 2.0.1 GetCoverage https://maps.isric.org/mapserv?map=/map/soc.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=soc_0-5cm_mean&FORMAT=image/tiff&SUBSET=long(minlon,maxlon)&SUBSET=lat(minlat,maxlat)&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326 (int16 GeoTIFF, 0=NoData, CORS *) - good for a one-off pipeline clip of PEC.",
+    "verified_results": {
+     "picton": "null (urban mask)",
+     "countryside_requested": "null",
+     "countryside_alt": {
+      "0-5": "577 dg/kg = 57.7 g/kg = 5.8 %"
+     }
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: * on WMS, WCS and REST API.",
+   "legend": {
+    "type": "server SLD (default style)",
+    "url": "https://maps.isric.org/mapserv?map=/map/soc.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&LAYER=soc_0-5cm_mean&FORMAT=image/png&SLD_VERSION=1.1.0",
+    "notes": "Legend PNG (~57x500) labelled in mapped units (e.g. g/kg, dg/kg), not %."
+   },
+   "units": "dg/kg; divide by 10 for g/kg, by 100 for %",
+   "provenance": {
+    "publisher": "ISRIC - World Soil Information",
+    "dataset": "SoilGrids 2.0 - Soil organic carbon",
+    "year": "2020 (Poggio et al. 2021)",
+    "resolution": "250 m (Interrupted Goode Homolosine, reprojected by WMS)",
+    "licence": "CC BY 4.0",
+    "url": "https://soilgrids.org / https://www.isric.org/explore/soilgrids",
+    "limitations": "Global 250 m ML model (Poggio et al. 2021, SOIL 7:217). Coarser than SLGC; urban areas and water masked (Picton town returns null). Values stored as integers: divide by d_factor (10)."
+   },
+   "verified_tile": "256x256 RGBA PNG over Picton bbox, ~2.5 KB (blocky 250 m pixels), ~0.5 s"
+  },
+  {
+   "id": "cli_agri_capability_250k",
+   "title": "Canada Land Inventory - Land Capability for Agriculture 1:250k",
+   "status": "WORKS as vector (FeatureServer); no image-tile endpoint",
+   "tile_url": null,
+   "tile_size": null,
+   "vector_source": {
+    "type": "geojson",
+    "recommended": "Bake once into a static GeoJSON (139 polygons for the PEC bbox, ~178 KB) and style client-side; or load live:",
+    "url": "https://services.arcgis.com/lGOekm0RsNxYnT3j/arcgis/rest/services/cli_agr_cap_250k/FeatureServer/0/query?geometry=-77.62,43.80,-76.80,44.20&geometryType=esriGeometryEnvelope&inSR=4326&outSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&geometryPrecision=6&f=geojson",
+    "maxRecordCount": 1000,
+    "formats": "JSON, geoJSON, PBF"
+   },
+   "point_query": {
+    "method": "ArcGIS FeatureServer query (point intersect), or client-side queryRenderedFeatures on the GeoJSON",
+    "url_template": "https://services.arcgis.com/lGOekm0RsNxYnT3j/arcgis/rest/services/cli_agr_cap_250k/FeatureServer/0/query?geometry={lon},{lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=false&f=json",
+    "value_path": "features[0].attributes: CLASS_A + SUBCLAS_A1 + SUBCLAS_A2 (e.g. '2'+'R' = 2R), PERCENT_A (tenths, '7' = 70%; blank = 100%), up to CLASS_F; MAJOR1 = dominant class (8 = Organic 'O', 9 = unclassified)",
+    "notes": "Strings are space-padded (' '): trim. Up to 6 components (A-F) per polygon.",
+    "verified_results": {
+     "picton": "6T (70%) + 4S (30%), MAJOR1=6",
+     "countryside_requested": "2S (100%), MAJOR1=2 (generalised polygon includes West Lake marsh)",
+     "countryside_alt": "2R, MAJOR1=2"
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: * (ArcGIS Online hosted).",
+   "legend": {
+    "field": "MAJOR1",
+    "classes": [
+     {
+      "value": 1,
+      "color": "#993300",
+      "label": "1 No significant limitations"
+     },
+     {
+      "value": 2,
+      "color": "#cc6600",
+      "label": "2 Moderate limitations"
+     },
+     {
+      "value": 3,
+      "color": "#ff9900",
+      "label": "3 Moderately severe limitations"
+     },
+     {
+      "value": 4,
+      "color": "#ffcc66",
+      "label": "4 Severe limitations"
+     },
+     {
+      "value": 5,
+      "color": "#a3ff73",
+      "label": "5 Forage crops - improvement feasible"
+     },
+     {
+      "value": 6,
+      "color": "#fffe73",
+      "label": "6 Forage crops - improvement not feasible"
+     },
+     {
+      "value": 7,
+      "color": "#ff7f7f",
+      "label": "7 No capability for arable culture or permanent pasture"
+     },
+     {
+      "value": 8,
+      "color": "#343434",
+      "label": "O Organic soils"
+     },
+     {
+      "value": 9,
+      "color": "#cccccc",
+      "label": "Unclassified"
+     }
+    ],
+    "subclasses": "C climate, D undesirable structure, E erosion, F low fertility, I inundation, M moisture deficiency, N salinity, P stoniness, R shallow to bedrock, S combined soil limitations, T topography, W excess water, X minor cumulative, Z (unclassified area code)"
+   },
+   "units": "class 1-7 / O + subclass letters; PERCENT in tenths",
+   "provenance": {
+    "publisher": "Agriculture and Agri-Food Canada / Natural Resources Canada (Canada Land Inventory)",
+    "dataset": "Canada Land Inventory (CLI) 1:250,000 - Land Capability for Agriculture",
+    "year": "Mapping 1960s-1970s; open data release 2013",
+    "resolution": "1:250,000 polygons",
+    "licence": "Open Government Licence - Canada (https://open.canada.ca/en/open-government-licence-canada)",
+    "url": "https://open.canada.ca/data/en/dataset/abf04733-8225-4d3c-83fa-9a5b60d43f2e",
+    "limitations": "Very generalised (139 polygons over PEC); polygons span towns, wetlands and lakes. Also downloadable as GPKG/FGDB from https://agriculture.canada.ca/atlas/data_donnees/canadaLandInventory/data_donnees/"
+   }
+  },
+  {
+   "id": "omafra_soil_survey_complex",
+   "title": "BONUS: Ontario Soil Survey Complex (detailed soil survey incl. CLI per component)",
+   "status": "WORKS (MapServer export tiles + query)",
+   "tile_url": "https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open05/MapServer/export?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&layers=show:9&f=image",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ArcGIS MapServer layer query (point intersect)",
+    "url_template": "https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/LIO_OPEN_DATA/LIO_Open05/MapServer/9/query?geometry={lon},{lat}&geometryType=esriGeometryPoint&inSR=4326&outFields=*&returnGeometry=false&f=json",
+    "value_path": "features[0].attributes: CLI1 + CLI1_1 + CLI1_2 (detailed CLI), CLI_SYS, SOIL_NAME1, ATEXTURE1, DRAINAGE1, HYDRO1, PERCENT1, SLOPE1, K_FACTOR1 (components 1-3)",
+    "verified_results": {
+     "picton": "Percy fine sandy loam, CLI 1, well drained, HSG B",
+     "countryside_requested": "no feature (water/marsh)",
+     "countryside_alt": "Pontypool sandy loam 70%/30%, CLI 4FM, well drained, HSG A"
+    },
+    "notes": "Much more detailed than CLI 250k (e.g. alt point is 2R at 250k but 4FM here). Default renderer is a simple symbol - style it yourself (or fetch GeoJSON via /query?f=geojson)."
+   },
+   "cors_ok": true,
+   "cors_notes": "LIO reflects Origin in Access-Control-Allow-Origin.",
+   "legend": {
+    "type": "server simple renderer; define your own class colours on CLI1"
+   },
+   "units": "categorical",
+   "provenance": {
+    "publisher": "Ontario Ministry of Agriculture, Food and Agribusiness (OMAFA) via Land Information Ontario",
+    "dataset": "Soil Survey Complex (Prince Edward County survey)",
+    "year": "Legacy county soil survey (SURVEY1 = PRINCE EDWARD); digital record effective 2019-11",
+    "resolution": "county soil survey polygons, LOCATION_ACCURACY within 200 m",
+    "licence": "Open Government Licence - Ontario (https://www.ontario.ca/page/open-government-licence-ontario)",
+    "url": "https://geohub.lio.gov.on.ca/ (Soil Survey Complex)",
+    "limitations": "Legacy survey; positional accuracy ~200 m."
+   }
+  },
+  {
+   "id": "ogs_surficial_geology",
+   "title": "Surficial Geology of Southern Ontario (OGS MRD128-REV, 1:50k)",
+   "status": "WORKS as vector (hosted FeatureServer); no image-tile endpoint",
+   "tile_url": null,
+   "tile_size": null,
+   "vector_source": {
+    "type": "geojson",
+    "recommended": "Bake once into static GeoJSON (815 polygons in PEC bbox, ~3.6 MB at 6-decimal precision - simplify or convert to PMTiles) and style client-side; or load live:",
+    "url": "https://services2.arcgis.com/zVN3OC2fz0Sgv7ip/arcgis/rest/services/SurficialGeologyMRD128REV/FeatureServer/3/query?geometry=-77.62,43.80,-76.80,44.20&geometryType=esriGeometryEnvelope&inSR=4326&outSR=4326&spatialRel=esriSpatialRelIntersects&outFields=UNIT,Deposit,Material,Description&geometryPrecision=6&f=geojson",
+    "maxRecordCount": 2000,
+    "other_layers": "0 PitsQuarry, 1 PointFeatures, 2 LinearFeatures, 3 SurficialGeology"
+   },
+   "point_query": {
+    "method": "ArcGIS FeatureServer query (point intersect)",
+    "url_template": "https://services2.arcgis.com/zVN3OC2fz0Sgv7ip/arcgis/rest/services/SurficialGeologyMRD128REV/FeatureServer/3/query?geometry={lon},{lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=UNIT,Deposit,Material,Description&returnGeometry=false&f=json",
+    "value_path": "features[0].attributes.{UNIT, Deposit, Material, Description}",
+    "verified_results": {
+     "picton": "9c Coarse-textured glaciolacustrine deposits; sand, gravel, minor silt and clay; foreshore and basinal",
+     "countryside_requested": "20 Organic deposits; peat, muck, marl",
+     "countryside_alt": "8a Fine-textured glaciolacustrine; silt and clay, minor sand and gravel; massive to well laminated"
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: *",
+   "legend": {
+    "field": "UNIT",
+    "source": "service drawingInfo uniqueValue renderer (49 classes)",
+    "pec_units_present": {
+     "5b": 281,
+     "20": 166,
+     "8a": 138,
+     "3": 71,
+     "9c": 65,
+     "9b": 27,
+     "19": 16,
+     "14b": 16,
+     "17": 13,
+     "12": 11,
+     "6a": 9,
+     "7b": 1,
+     "1": 1
+    },
+    "classes_in_pec": [
+     {
+      "unit": "1",
+      "color": "#fec1bf",
+      "label": "Precambrian bedrock"
+     },
+     {
+      "unit": "3",
+      "color": "#f9c2fe",
+      "label": "Paleozoic bedrock"
+     },
+     {
+      "unit": "5b",
+      "color": "#87be00",
+      "label": "Stone-poor, carbonate-derived silty to sandy till"
+     },
+     {
+      "unit": "6a",
+      "color": "#feac00",
+      "label": "Ice-contact stratified deposits in moraines, kames, eskers"
+     },
+     {
+      "unit": "7b",
+      "color": "#fed77d",
+      "label": "Glaciofluvial gravelly deposits"
+     },
+     {
+      "unit": "8a",
+      "color": "#a4f9fe",
+      "label": "Fine-textured glaciolacustrine, massive-well laminated"
+     },
+     {
+      "unit": "9b",
+      "color": "#fefa00",
+      "label": "Coarse-textured glaciolacustrine, littoral-foreshore"
+     },
+     {
+      "unit": "9c",
+      "color": "#fefa00",
+      "label": "Coarse-textured glaciolacustrine, foreshore-basinal"
+     },
+     {
+      "unit": "12",
+      "color": "#a06632",
+      "label": "Older alluvial deposits"
+     },
+     {
+      "unit": "14b",
+      "color": "#ffff00",
+      "label": "Coarse-textured lacustrine, littoral-foreshore"
+     },
+     {
+      "unit": "17",
+      "color": "#fefac2",
+      "label": "Eolian deposits"
+     },
+     {
+      "unit": "19",
+      "color": "#a06632",
+      "label": "Modern alluvial deposits"
+     },
+     {
+      "unit": "20",
+      "color": "#a5a5a5",
+      "label": "Organic deposits"
+     }
+    ],
+    "full_renderer": "https://services2.arcgis.com/zVN3OC2fz0Sgv7ip/arcgis/rest/services/SurficialGeologyMRD128REV/FeatureServer/3?f=json (drawingInfo.renderer.uniqueValueInfos)"
+   },
+   "units": "categorical",
+   "provenance": {
+    "publisher": "Ontario Geological Survey (Ministry of Mines), hosted on the official GeologyOntario ArcGIS Hub",
+    "dataset": "MRD128-REV Surficial Geology of Southern Ontario",
+    "year": "2010 (revision of EDS 014, 2003)",
+    "resolution": "1:50,000 compilation",
+    "licence": "Open Government Licence - Ontario (https://www.ontario.ca/page/open-government-licence-ontario) (service copyrightText blank; confirm on OGS record)",
+    "url": "https://www.geologyontario.mines.gov.on.ca/persistent-linking?publication=MRD128-REV",
+    "limitations": "EDS 014 itself is not served; MRD128-REV is its revised successor. Hosted FeatureServer only (no raster/tile endpoint)."
+   }
+  },
+  {
+   "id": "ogs_quaternary_1m_fallback",
+   "title": "Quaternary Geology of Ontario 1:1M (OGS via LIO) - raster-tile fallback",
+   "status": "WORKS (MapServer export tiles + identify)",
+   "tile_url": "https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/GeologyOntario/GeologyOntario_Map/MapServer/export?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&layers=show:52&f=image",
+   "tile_size": 256,
+   "point_query": {
+    "method": "ArcGIS MapServer identify",
+    "url_template": "https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/GeologyOntario/GeologyOntario_Map/MapServer/identify?geometry={lon},{lat}&geometryType=esriGeometryPoint&sr=4326&layers=all:52&tolerance=1&mapExtent={lon_min},{lat_min},{lon_max},{lat_max}&imageDisplay=256,256,96&returnGeometry=false&f=json",
+    "value_path": "results[0].attributes.{NUMBER, AGE, UNIT_NAME, MATERIAL}",
+    "verified_results": {
+     "picton": "25 Pleistocene Glaciolacustrine deposits; sand, gravelly sand and gravel, nearshore and beach deposits"
+    }
+   },
+   "cors_ok": true,
+   "cors_notes": "LIO reflects Origin.",
+   "legend": {
+    "url": "https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/GeologyOntario/GeologyOntario_Map/MapServer/legend?f=json"
+   },
+   "units": "categorical",
+   "provenance": {
+    "publisher": "Ontario Geological Survey / Land Information Ontario",
+    "dataset": "Quaternary Geology of Ontario (1:1,000,000)",
+    "year": "1997",
+    "resolution": "1:1,000,000",
+    "licence": "Open Government Licence - Ontario (https://www.ontario.ca/page/open-government-licence-ontario)",
+    "url": "https://ws.lioservices.lrc.gov.on.ca/arcgis2/rest/services/GeologyOntario/GeologyOntario_Map/MapServer/52",
+    "limitations": "Far too coarse for parcel-level use; prefer MRD128-REV."
+   }
+  },
+  {
+   "id": "basemap_esri_world_imagery",
+   "title": "Esri World Imagery",
+   "status": "WORKS (XYZ, no key)",
+   "tile_url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+   "tile_size": 256,
+   "point_query": null,
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: *",
+   "legend": null,
+   "units": null,
+   "verified_tile": "z14/5957/4681 over Picton - 19 KB JPEG, clear aerial imagery of town edge",
+   "provenance": {
+    "publisher": "Esri",
+    "dataset": "World Imagery",
+    "year": "rolling",
+    "resolution": "sub-metre in PEC",
+    "licence": "Esri Terms of Use; attribution required: 'Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community' (from service copyrightText). Esri's current terms expect an ArcGIS account (free Location Platform tier) for basemap use in non-Esri apps - fine for a small non-commercial app but check before heavy/commercial use.",
+    "url": "https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9",
+    "limitations": "Keyless endpoint has no SLA."
+   }
+  },
+  {
+   "id": "basemap_eox_s2cloudless",
+   "title": "EOX Sentinel-2 cloudless (open alternative imagery)",
+   "status": "WORKS (XYZ, no key)",
+   "tile_url": "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+   "tile_size": 256,
+   "point_query": null,
+   "cors_ok": true,
+   "cors_notes": "Reflects Origin.",
+   "legend": null,
+   "units": null,
+   "provenance": {
+    "publisher": "EOX IT Services GmbH",
+    "dataset": "Sentinel-2 cloudless",
+    "year": "2024 (also 2016 layer s2cloudless_3857)",
+    "resolution": "10 m",
+    "licence": "2016 layer CC BY 4.0; 2018+ layers CC BY-NC-SA 4.0. Attribution: 'Sentinel-2 cloudless - https://s2maps.eu by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2024)'",
+    "url": "https://s2maps.eu",
+    "limitations": "10 m only; non-commercial for 2018+ years."
+   }
+  },
+  {
+   "id": "basemap_openfreemap",
+   "title": "OpenFreeMap vector basemap (OSM / OpenMapTiles)",
+   "status": "WORKS (style JSON loads, no key)",
+   "style_urls": {
+    "liberty": "https://tiles.openfreemap.org/styles/liberty",
+    "positron": "https://tiles.openfreemap.org/styles/positron",
+    "bright": "https://tiles.openfreemap.org/styles/bright"
+   },
+   "tile_url": "https://tiles.openfreemap.org/planet (TileJSON; currently https://tiles.openfreemap.org/planet/20261004_113936_pt/{z}/{x}/{y}.pbf)",
+   "tile_size": 512,
+   "point_query": null,
+   "cors_ok": true,
+   "cors_notes": "Access-Control-Allow-Origin: * on styles",
+   "legend": null,
+   "units": null,
+   "verified": "All three styles are valid v8 JSON (liberty 111 layers, positron 55, bright 119), source 'openmaptiles', glyphs + sprites on tiles.openfreemap.org",
+   "provenance": {
+    "publisher": "OpenFreeMap",
+    "dataset": "OpenMapTiles schema planet tiles",
+    "year": "weekly",
+    "resolution": "vector z0-14",
+    "licence": "OSM data ODbL; attribution '(c) OpenMapTiles, Data from OpenStreetMap' (+ OpenFreeMap)",
+    "url": "https://openfreemap.org",
+    "limitations": "Free, no SLA."
+   }
+  }
+ ],
+ "recommendations": {
+  "texture_soc": "Use SLGC 100m (slgc_clay/sand/silt/soc) for tiles and getSamples; fall back to SoilGrids REST where SLGC returns '' (NoData). Consider baking both into PMTiles for PEC to avoid runtime dependency and the large SLGC gaps.",
+  "cli": "Bake CLI 250k GeoJSON (178 KB) into public/; offer OMAFRA Soil Survey Complex CLI as the detailed layer.",
+  "surficial_geology": "Bake MRD128-REV GeoJSON (simplified) or PMTiles; LIO 1:1M quaternary only as raster fallback.",
+  "depth_to_bedrock": "Offline: OGS MRD207 overburden thickness (preferred) -> clip/tile in pipeline; SoilGrids 2017 BDTICM only with explicit caveats.",
+  "basemaps": "OpenFreeMap positron/liberty + Esri World Imagery (attributed); EOX s2cloudless as an open-licence imagery fallback."
+ }
+}
