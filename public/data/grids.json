@@ -1,0 +1,85 @@
+{
+ "bounds": [
+  -77.62,
+  43.8,
+  -76.8,
+  44.2
+ ],
+ "width": 684,
+ "height": 446,
+ "depth": "0-30 cm (depth-weighted mean)",
+ "props": {
+  "clay": {
+   "scale": 2,
+   "ramp": [
+    "#fff7ec",
+    "#fdd49e",
+    "#fc8d59",
+    "#d7301f",
+    "#7f0000"
+   ],
+   "range": [
+    0,
+    60
+   ],
+   "coverage": {
+    "slgc": 0.338,
+    "soilgrids": 0.241
+   }
+  },
+  "sand": {
+   "scale": 2,
+   "ramp": [
+    "#fffde0",
+    "#f6e27a",
+    "#d9b44a",
+    "#a8782a",
+    "#5c3d10"
+   ],
+   "range": [
+    0,
+    100
+   ],
+   "coverage": {
+    "slgc": 0.338,
+    "soilgrids": 0.241
+   }
+  },
+  "silt": {
+   "scale": 2,
+   "ramp": [
+    "#f7fcfd",
+    "#bfd3e6",
+    "#8c96c6",
+    "#88419d",
+    "#4d004b"
+   ],
+   "range": [
+    0,
+    80
+   ],
+   "coverage": {
+    "slgc": 0.338,
+    "soilgrids": 0.241
+   }
+  },
+  "soc": {
+   "scale": 20,
+   "ramp": [
+    "#ffffe5",
+    "#d9f0a3",
+    "#78c679",
+    "#238443",
+    "#004529"
+   ],
+   "range": [
+    0,
+    8
+   ],
+   "coverage": {
+    "slgc": 0.35,
+    "soilgrids": 0.232
+   }
+  }
+ }
+}

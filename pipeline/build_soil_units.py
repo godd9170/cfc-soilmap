@@ -1,0 +1,834 @@
+import json, os
+
+CROPS = ["oats", "barley", "alfalfa", "timothy", "hay_and_pasture", "peas", "tomatoes", "corn", "tree_fruits"]
+def R(s):
+    return dict(zip(CROPS, s.split()))
+
+def P(h, d, desc):
+    return {"horizon": h, "depth": d, "description": desc}
+
+units = {}
+
+def add(sym, **kw):
+    base = dict(symbol=sym, slug=None, series=None, type_name=None, texture=None, phase=None,
+                soil_material=None, parent_material=None, bedrock=None, drainage=None, topography=None,
+                stoniness=None, surface_reaction=None, soil_depth=None, surface_soil_description=None,
+                subsoil_description=None, profile=[], historical_crop_group=None, historical_crop_ratings=None,
+                historical_crops=[], limitations=[], primary_limitation=None, management_recommendations=[],
+                acreage=None, report_pages=None, original_description=None, interpretation=None,
+                historical_wording=None, data_notes=[])
+    for k, v in kw.items():
+        assert k in base, k
+        base[k] = v
+    units[sym] = base
+
+G1, G2, G3, G4, SUB = "Good", "Good to Fair", "Fair", "Fair to Poor", "Submarginal"
+W1, W2, W3, W4, W5 = "Good crop land", "Good to fair crop land", "Fair crop land", "Fair to poor crop land", "Submarginal crop land"
+
+# ---------------- Farmington ----------------
+farm_common = dict(series="Farmington", texture="loam", soil_material="Shallow over bedrock",
+    parent_material="A thin layer of drift and some limestone weathered in place",
+    bedrock="Limestone (more massive than the shaley limestone under the Hillier series)",
+    stoniness="Stony", surface_reaction="Alkaline")
+
+add("Fl", slug="farmington-loam", type_name="Farmington Loam", **farm_common,
+    drainage="Good", topography="Level to undulating",
+    soil_depth="Less than 1 ft of soil over limestone bedrock",
+    surface_soil_description="2-3 inches dark brown loam with limestone fragments; pH 7.6 (profile examined in a wooded area).",
+    subsoil_description="2-6 inches grey brown stony loam grading into 1-2 inches of dark brown clay loam over limestone bedrock.",
+    profile=[P(None, "2-3 inches", "Dark brown loam; pH 7.6; limestone fragments in the surface soil"),
+             P(None, "2-6 inches", "Grey brown stony loam"),
+             P(None, "1-2 inches", "Dark brown clay loam over limestone bedrock")],
+    historical_crop_group=G4, historical_crop_ratings=R("P P P P F P P P P"),
+    historical_crops=["Pasture (Canada bluegrass)"],
+    limitations=["Shallowness to bedrock (less than 1 ft)", "Droughty in periods of low rainfall", "Stoniness"],
+    primary_limitation="Less than one foot of soil over limestone bedrock, so the soil dries out rapidly and becomes quite droughty in periods of low rainfall.",
+    management_recommendations=["Use mainly as pasture land; the report notes very fine stands of Canada bluegrass on this soil",
+        "Small, deeper pockets can be tilled to advantage in conjunction with the shallow pasture land",
+        "Development of these shallow soils as recreational land offers profitable opportunity along shorelines such as the Salmon Point and South Bay peninsulas"],
+    acreage=48600, report_pages={"start": 51, "end": 54},
+    original_description=("The Farmington loam is a shallow soil derived from a thin layer of drift and some limestone weathered in situ. "
+        "The profile is less than one foot in depth and often the soil horizons are only weakly differentiated.\n\n"
+        "The soil dries out rapidly and becomes quite droughty in periods of low rainfall. For the most part the drainage of the Farmington loam might be considered excessive.\n\n"
+        "Only a very small proportion of the Farmington loam is cultivated, the remainder serving a useful purpose as pasture land. Very fine stands of Canada bluegrass are produced on this soil. "
+        "There appears to be a tendency to acquire large holdings of these shallow soils for pasture purposes. In some instances small, deeper pockets can be tilled to advantage in conjunction with the shallow pasture land."),
+    interpretation=("This is very thin soil over limestone, so water and rooting depth are likely to be the main constraints in most years. "
+        "The 1948 surveyors saw it mainly as pasture land, with only small deeper pockets worth cultivating. "
+        "For gardening, shallow-rooted or drought-tolerant plantings, or raised beds, may suit it better than deep-rooted crops, though conditions vary from spot to spot and a site check is worthwhile."),
+    historical_wording="Fair to poor crop land",
+    data_notes=["Report text describes drainage as 'might be considered excessive'; legend gives Good.",
+                "Report text gives topography as 'level to slightly undulating'.",
+                "Typical profile in the report has no horizon labels."])
+
+add("Fl-i", slug="farmington-loam-imperfectly-drained", type_name="Farmington Loam, Imperfectly Drained",
+    phase="imperfectly drained", **farm_common,
+    drainage="Imperfect", topography="Slightly depressional areas",
+    soil_depth="Less than 1 ft of soil over limestone bedrock",
+    surface_soil_description="Organic matter content of the surface layer is higher than in the well-drained type.",
+    subsoil_description="Mottled beneath the surface layer.",
+    profile=[],
+    historical_crop_group=G4, historical_crop_ratings=None,
+    historical_crops=["Grazing", "Trees"],
+    limitations=["Shallowness to bedrock (less than 1 ft)", "Imperfect drainage"],
+    primary_limitation="Very shallow soil over limestone in slightly depressional areas, limited by both shallowness and drainage.",
+    management_recommendations=[],
+    acreage=6500, report_pages={"start": 54, "end": 54},
+    original_description=("The imperfectly drained Farmington differs from the well drained type, in that it occurs in slightly depressional areas, is mottled beneath the surface layer and is less droughty. "
+        "The organic matter content of the surface layer is higher than the well drained type. A fairly large proportion of this soil remains in tree cover which contains a large percentage of white cedar. "
+        "It is used largely for grazing purposes and growing trees."),
+    interpretation=("These are thin soils over limestone in low spots, so they may be wet at some times of year and still shallow for roots. "
+        "In 1948 they were mostly used for grazing and trees, often with white cedar. "
+        "Seasonal wetness and shallow rock together likely restrict what can be grown without significant site work."),
+    historical_wording="Fair to poor crop land",
+    data_notes=["Listed in Group IV (Fair to Poor) with limitations 'shallowness and drainage', but no row in Table 11 crop ratings."])
+
+# ---------------- Ameliasburg ----------------
+am_common = dict(series="Ameliasburg", soil_material="Moderately shallow over bedrock",
+    parent_material="Materials from weathering of the underlying limestone bedrock together with deposits of morainic, marine and outwash origin",
+    bedrock="Limestone, 1-3 ft below the surface", stoniness="Stony", surface_reaction="Alkaline",
+    soil_depth="1-3 ft of soil over limestone bedrock")
+
+add("Acl", slug="ameliasburg-clay-loam", type_name="Ameliasburg Clay Loam", texture="clay loam", **am_common,
+    drainage="Good", topography="Undulating to rolling",
+    surface_soil_description="4-6 inches grey brown clay loam; limestone fragments frequent; organic matter medium to low; crumb structure; pH 8.0.",
+    subsoil_description="12-15 inches grey brown clay loam (granular, pH 8.0) over 4-6 inches heavy brown clay loam (small nuciform structure, pH 8.2), resting on a shallow layer of heavy limestone till or bedrock.",
+    profile=[P("Ac", "4-6 inches", "Grey brown clay loam; limestone fragments frequent in the surface soil; organic matter medium to low; crumb structure; pH 8.0"),
+             P("A2", "12-15 inches", "Grey brown clay loam; granular structure; pH 8.0"),
+             P("B", "4-6 inches", "Heavy brown clay loam; small nuciform structure; pH 8.2"),
+             P("C", None, "Shallow layer of heavy limestone till or bedrock; pH 8.2")],
+    historical_crop_group=G3, historical_crop_ratings=R("F F G-F G G F G-F F-P F-P"),
+    historical_crops=["Hay", "Pasture", "Small grains", "Alfalfa", "Sweet clover", "Tomatoes", "Corn", "Canning crops"],
+    limitations=["Shallowness to bedrock", "Droughty in dry seasons", "Tendency to puddle and bake in wet seasons", "Slow internal drainage (high clay content)", "Poor fertilizer response in dry seasons"],
+    primary_limitation="Shallowness to bedrock, which combined with the impervious clay makes the soil droughty in dry seasons.",
+    management_recommendations=["Liberal applications of barnyard manure to maintain organic matter and help conserve soil moisture",
+        "Sweet clover, if properly fertilized, can serve as a soil-building crop",
+        "Maintain fertility levels, with particular emphasis on an adequate organic matter content"],
+    acreage=25200, report_pages={"start": 54, "end": 56},
+    original_description=("Stony clay loam overlying limestone bedrock and fair to good drainage characterize this type. It is found fairly well distributed over the entire County, the greatest expanse being located in the southern section of Sophiasburg and Ameliasburg Townships.\n\n"
+        "In spite of its shallowness, the Ameliasburg clay loam grows a wide range of crops. Dairy farming is carried on extensively and large acreages are utilized for growing canning crops.\n\n"
+        "The agricultural potentialities are limited materially by the shallowness of the soil. Hay and pasture crops appear to do very well, and with an average amount of rainfall, fair crops of small grains are produced. The soil appears to be well adapted to the growing of alfalfa. "
+        "In wet seasons it is difficult to establish a favourable physical condition in the soil because of its tendency to puddle and bake. In dry seasons, the imperviousness of the clay materials, combined with shallowness to bedrock, make it a droughty soil."),
+    interpretation=("A moderately shallow, limy clay loam over limestone that the 1948 report found good for hay, pasture and legumes but only fair for most other crops. "
+        "Summer dryness and the clay's tendency to puddle when wet and bake when dry appear to be the recurring issues. "
+        "Building organic matter was the report's main advice; how well a given garden or field performs will likely depend on the local depth to rock."),
+    historical_wording="Fair crop land",
+    data_notes=["Report text gives topography as 'level to slightly undulating'; legend gives Undulating to rolling.",
+                "Report text says 'fair to good drainage'; internal drainage rather slow, external good.",
+                "Group III list (p. 74) gives Ameliasburg clay loam 25,600 ac and Ameliasburg loam 25,200 ac, swapped relative to Part III text and the map legend."])
+
+add("Ac-i", slug="ameliasburg-clay-loam-imperfectly-drained", type_name="Ameliasburg Clay Loam, Imperfectly Drained",
+    texture="clay loam", phase="imperfectly drained", **am_common,
+    drainage="Imperfect", topography="Level to undulating",
+    surface_soil_description="Extremely stony surface soil, with a small proportion of granite boulders on the surface.",
+    subsoil_description=None, profile=[],
+    historical_crop_group=G4, historical_crop_ratings=R("P P P P F P P P P"),
+    historical_crops=["Grazing land"],
+    limitations=["Shallowness to bedrock", "Imperfect drainage (external and internal)", "Unsatisfactory moisture relationships", "Extreme surface stoniness makes cultivation difficult"],
+    primary_limitation="Shallowness to bedrock and imperfect drainage, with an extremely stony surface that is difficult to cultivate.",
+    management_recommendations=[],
+    acreage=5000, report_pages={"start": 56, "end": 57},
+    original_description=("The Ameliasburg clay loam imperfectly drained, occurs for the most part in Sophiasburg Township. Because of the level to undulating topography, the external and internal drainage are imperfect. "
+        "Bedrock occurs at depths similar to that in the Ameliasburg clay loam and there is a small proportion of granite boulders on the surface. Most of the imperfectly drained Ameliasburg has been cleared and is used as grazing land. "
+        "It would appear that the tree cover consisted of elm and sugar maple. Shallowness to bedrock and unsatisfactory moisture relationships limit the usefulness of these soils for orchard purposes. "
+        "The extreme stoniness of the surface soil makes it difficult to cultivate."),
+    interpretation=("This is the wetter, flatter version of the Ameliasburg clay loam, still with limestone within about three feet. "
+        "The report rated it poor for nearly everything except pasture, largely because of stones, shallow rock and imperfect drainage. "
+        "It is probably best understood as grazing or naturalized land unless a site turns out to be deeper or better drained than the mapped unit suggests."),
+    historical_wording="Fair to poor crop land",
+    data_notes=["Map symbol is Ac-i (legend), though the parent type symbol is Acl."])
+
+add("Al", slug="ameliasburg-loam", type_name="Ameliasburg Loam", texture="loam", **am_common,
+    drainage="Good", topography="Undulating to rolling",
+    surface_soil_description="Loam; the report states that apart from texture the characteristics of the Ameliasburg clay loam apply, with lower clay, organic matter and fertility.",
+    subsoil_description=None, profile=[],
+    historical_crop_group=G3, historical_crop_ratings=R("F F G-F F F F G-F F F"),
+    historical_crops=["Pasture", "Orchards (a few)", "Hay", "Grain", "Canning crops"],
+    limitations=["Shallowness to bedrock", "Summer drought", "Lower fertility than the clay loam", "Excessive stoniness makes cultivation difficult", "Some sheet erosion where row crops are grown extensively"],
+    primary_limitation="Shallowness to bedrock, with a greater tendency than the clay loam to suffer from summer drought.",
+    management_recommendations=["Maintain fertility levels, with particular emphasis on an adequate organic matter content"],
+    acreage=25600, report_pages={"start": 57, "end": 57},
+    original_description=("The Ameliasburg loam is fairly well distributed over the entire county. With the exception of the textural difference, the characteristics of the moderately shallow clay loam apply as well to this type. In general, the fertility level of the loam is lower than that of the heavier clay loam.\n\n"
+        "Both the external and internal drainage of this type can be described as good. Because of the lower clay content and lower organic matter content of the loam, there is a tendency for it to suffer from summer drought more readily than the clay. "
+        "This is partly compensated for by the lighter texture and friable consistency of the loam making it respond readily to light summer rains. Where row crops are grown extensively, some sheet erosion occurs.\n\n"
+        "The utilization of the loam is similar to that of the clay loam. Larger acreages are in pasture and a few more orchards are located on this type. The fertility level is lower than that of the clay loam and the maintenance of organic matter on the lighter textured soil is more of a problem. "
+        "Excessive stoniness makes cultivation difficult. However, provided climatic conditions are suitable, the capability of this type to produce fair yields of a wide range of crops makes it a fairly valuable and important soil in the County."),
+    interpretation=("A moderately shallow, stony loam over limestone that the report considered capable of fair yields of many crops in suitable seasons. "
+        "It likely dries out faster than the neighbouring clay loam but is easier to work and responds to light rains. "
+        "Stones and depth to rock may vary considerably within the mapped area, so the 1948 rating is a general guide rather than a site-specific one."),
+    historical_wording="Fair crop land",
+    data_notes=["The report gives no separate typical profile for this type.",
+                "Report text gives topography as 'undulating to slightly rolling'.",
+                "Group III list (p. 74) gives Ameliasburg loam 25,200 ac, swapped relative to Part III text and legend (25,600)."])
+
+# ---------------- Athol ----------------
+add("Asl", slug="athol-sandy-loam", series="Athol", type_name="Athol Sandy Loam", texture="sandy loam",
+    soil_material="Moderately shallow over bedrock",
+    parent_material="Stony sandy material of varying depths over limestone bedrock",
+    bedrock="Limestone, usually 1-3 ft below the surface",
+    drainage="Good", topography="Level to undulating", stoniness="Stony", surface_reaction="Neutral to alkaline",
+    soil_depth="Usually 1-3 ft of sandy material over limestone bedrock",
+    surface_soil_description=None, subsoil_description=None, profile=[],
+    historical_crop_group=G4, historical_crop_ratings=R("P P P P P F-P F-P P P"),
+    historical_crops=["Tomatoes", "Corn", "Orchards (some)"],
+    limitations=["Depth to bedrock", "Low natural fertility", "Droughtiness on shallow coarse areas", "Imperfect drainage where depressions occur in the rock", "Susceptible to wind erosion"],
+    primary_limitation="Depth to bedrock and low fertility are the chief limiting factors.",
+    management_recommendations=["Liberal applications of manure because of low inherent fertility",
+        "Orchards attain fair success provided adequate fertility levels are maintained"],
+    acreage=2700, report_pages={"start": 57, "end": 58},
+    original_description=("The Athol sandy loam is developed on stony sandy material of varying depths (usually one to three feet) over limestone bedrock. It occurs in the Milford area of South Marysburg Township, the Sand Banks area of Hallowell Township with a small tract near Cressy Wharf in North Marysburg Township. The profile varies according to the type of sandy material overlying the bedrock.\n\n"
+        "The drainage is variable usually being either excessive or imperfect. Where depressions occur in the rock, the water table is held up and imperfect drainage results. In the coarse materials, where there is a shallow deposit over bedrock, the Athol sandy loam has a tendency to be droughty.\n\n"
+        "The inherent natural fertility of the Athol sandy loam is low and, consequently, liberal applications of manure should be made. Depth to bedrock and low fertility are the chief limiting factors in the production of farm crops."),
+    interpretation=("A sandy, stony soil over limestone that the report rated poor to fair-to-poor for most crops. "
+        "Low natural fertility and shallow rock are the main concerns, and drainage can swing between droughty and seasonally wet depending on the rock surface. "
+        "Adding organic matter was the report's main suggestion; results likely vary a lot across short distances."),
+    historical_wording="Fair to poor crop land",
+    data_notes=["Report text describes drainage as 'variable usually being either excessive or imperfect'; legend gives Good.",
+                "Report text gives topography as 'smooth to gently undulating'.",
+                "No typical profile given (report says it varies with the overlying sandy material)."])
+
+# ---------------- Gerow ----------------
+add("Gc", slug="gerow-clay-loam", series="Gerow", type_name="Gerow Clay Loam", texture="clay loam",
+    soil_material="Moderately shallow over bedrock",
+    parent_material="Clay over limestone bedrock (poorly drained associate of the Hillier and Ameliasburg soils)",
+    bedrock="Limestone, moderately shallow (1-3 ft)",
+    drainage="Poor", topography="Level", stoniness="Stony", surface_reaction="Alkaline",
+    soil_depth="Moderately shallow (1-3 ft) over limestone bedrock",
+    surface_soil_description="6-8 inches dark brown clay loam; crumb structure; stony; friable; pH 7.5. Organic matter medium to high.",
+    subsoil_description="Grey mottled clay with occasional limestone fragments; massive structure; plastic; pH 7.6; over limestone bedrock.",
+    profile=[P("Ac", "6-8 inches", "Dark brown clay loam; crumb structure; stony; friable consistency; pH 7.5"),
+             P("G", None, "Grey mottled clay with occasional limestone fragments; massive structure; plastic consistency; pH 7.6"),
+             P("R", None, "Limestone bedrock")],
+    historical_crop_group=G3, historical_crop_ratings=R("F F P F G-F F-P F-P F-P P"),
+    historical_crops=["Hay", "Pasture", "Buckwheat", "Cereal grains (fair)"],
+    limitations=["Poor natural drainage", "Usually too wet in spring to plant small grains other than buckwheat", "Closeness of bedrock makes artificial drainage difficult", "Not well suited to tree fruits or canning crops"],
+    primary_limitation="Unsatisfactory natural drainage, which is difficult to improve because bedrock is close to the surface.",
+    management_recommendations=["The report doubted that increased yields would warrant the cost of installing tile drains, because of the closeness of the bedrock"],
+    acreage=11600, report_pages={"start": 61, "end": 61},
+    original_description=("Occurring for the most part in depressional areas, the Gerow clay loam is the poorly drained member of the Hillier and Ameliasburg catenas. Mottlings frequently occur beneath the surface soil and the profile exhibits the characteristics of the Dark Grey Gleisolic Great Soil Group.\n\n"
+        "Fair crops of hay and pasture are produced on this soil type. However its usefulness is limited by unsatisfactory natural drainage. Buckwheat does fairly well but it is usually too wet in the spring to plant other small grains. It is not well suited to tree fruits or canning crops.\n\n"
+        "The organic matter content is medium to high. Artificial drainage would be difficult due to the closeness of the bedrock and it is doubtful if the increased yield in crop production would warrant the cost of installing tile drains."),
+    interpretation=("A wet, dark clay loam in low spots over fairly shallow limestone. "
+        "The report found it suited mainly to hay and pasture, and doubted that drainage would pay off. "
+        "Late spring wetness is likely the main practical constraint; plants that tolerate wet feet may do better here than orchards or row crops."),
+    historical_wording="Fair crop land",
+    data_notes=["Report text gives topography as 'slightly undulating to depressional'; legend gives Level."])
+
+# ---------------- Hillier ----------------
+add("Hc", slug="hillier-clay-loam", series="Hillier", type_name="Hillier Clay Loam", texture="clay loam",
+    soil_material="Moderately shallow shaley limestone",
+    parent_material="Weathered thin beds of Trenton limestone with numerous partings of dark brown shale",
+    bedrock="Friable limestone interbedded with shale partings",
+    drainage="Good", topography="Undulating to rolling", stoniness="Very stony", surface_reaction="Alkaline",
+    soil_depth="Moderately shallow (3 ft or less) over shaley limestone",
+    surface_soil_description="4-6 inches reddish brown clay loam with numerous limestone fragments (1/2 to 1 1/2 inches); organic matter medium; crumb structure; pH 7.6.",
+    subsoil_description="10-18 inches reddish brown clay loam with frequent fragments (pH 7.4) over 4-6 inches heavy brown clay loam (pH 7.6), on friable limestone bedrock interbedded with shale partings.",
+    profile=[P("Ac", "4-6 inches", "Reddish brown clay loam; numerous limestone fragments ranging in size from 1/2 to 1 1/2 inches; organic matter medium; crumb structure; pH 7.6"),
+             P("A2", "10-18 inches", "Reddish brown clay loam; granular structure; frequent fragments; pH 7.4"),
+             P("B", "4-6 inches", "Heavy brown clay loam; medium nuciform structure; frequent fragments; pH 7.6"),
+             P("C", None, "Friable limestone bedrock interbedded with shale partings; pH 8.2")],
+    historical_crop_group=G2, historical_crop_ratings=R("G-F G-F G G-F G G-F G-F G-F F"),
+    historical_crops=["Alfalfa", "Clovers", "Small grains", "Canning crops", "Tree fruits", "Hay and pasture"],
+    limitations=["Tendency to become droughty", "Shallowness over bedrock", "Excessive stoniness inhibits early cultivation", "Sheet erosion on rolling areas in row crops"],
+    primary_limitation="Tendency to become droughty, aggravated by shallowness over bedrock and fairly low July-August precipitation.",
+    management_recommendations=["Maintain an adequate organic matter content",
+        "A mulch system for tree fruits (e.g., heavy straw mulch in the fall) to conserve moisture and build organic matter",
+        "Sod mulch cultural system in orchards for soil moisture conservation"],
+    acreage=25600, report_pages={"start": 58, "end": 60},
+    original_description=("The Hillier clay loam is characterized by a very stony surface soil, reddish brown colour and rolling topography. It differs from the Ameliasburg series in the very large number of limestone fragments found in the surface soil. "
+        "These may be accounted for by thin beds of Trenton limestone with numerous partings of dark brown shale. The higher shale content is reflected in the heavy texture of the clay, intermixed with the more resistant limestone.\n\n"
+        "Due to the presence of a large proportion of limestone fragments this soil is referred to locally as \"clay gravel.\" It is well suited to dairy farming and grows alfalfa, clovers, small grains and canning crops satisfactorily, provided an adequate organic matter content is maintained. "
+        "The presence of shale partings in the underlying bedrock permits greater root penetration than in the Ameliasburg series with the result that tree fruits are grown with fair success.\n\n"
+        "The greatest limitation of this soil for crop production is its tendency to become droughty. The excessive stoniness inhibits early cultivation but in spite of this, many profitable farm businesses are maintained on the Hillier clay loam."),
+    interpretation=("Locally called \"clay gravel,\" this reddish, very stony clay loam sits over layered limestone and shale. "
+        "The report rated it good to fair overall and noted that roots can reach further into the fractured rock than on other shallow soils here. "
+        "Dryness in mid-summer seems to be the main risk; mulching and organic matter were the report's suggested responses, and stones may make hand cultivation slow."),
+    historical_wording="Good to fair crop land",
+    data_notes=["Report text gives topography as 'slightly undulating to strongly rolling'."])
+
+# ---------------- Darlington ----------------
+add("Dl", slug="darlington-loam", series="Darlington", type_name="Darlington Loam", texture="loam",
+    soil_material="Limestone till",
+    parent_material="Medium to heavy textured calcareous till derived largely from Trenton limestone, with a fair proportion of shale",
+    bedrock="Till usually more than 3 ft deep over bedrock",
+    drainage="Good", topography="Undulating to rolling", stoniness="Stony", surface_reaction="Neutral to alkaline",
+    soil_depth="Deep (till usually greater than 3 ft over bedrock)",
+    surface_soil_description="4-6 inches dark brown loam; medium organic matter; crumb structure; frequent stones; slightly alkaline, pH 7.4.",
+    subsoil_description="8-10 inches yellow brown stony loam and 2-3 inches grey bleached loam over 2-4 inches dark brown clay loam (frequent stones, pH 7.6), on grey calcareous till with limestone and shale fragments (pH 8.0).",
+    profile=[P("Ac", "4-6 inches", "Dark brown loam; medium organic matter; crumb structure; frequent stones; slightly alkaline reaction; pH 7.4"),
+             P("A21", "8-10 inches", "Yellow brown stony loam; weak platy structure; pH 7.2"),
+             P("A22", "2-3 inches", "Grey bleached loam; stony; slightly cemented; pH 7.4"),
+             P("B", "2-4 inches", "Dark brown clay loam; frequent stones; nuciform structure; pH 7.6"),
+             P("C", None, "Grey, calcareous till; contains frequent limestone and shale fragments; pH 8.0")],
+    historical_crop_group=G1, historical_crop_ratings=R("G G G G G G G G G-F"),
+    historical_crops=["Alfalfa", "Clovers", "Corn", "Canning crops", "Oats", "Barley", "Timothy", "Hay and pasture", "Peas", "Tomatoes", "Tree fruits"],
+    limitations=["Stoniness", "Slight sheet erosion on slopes"],
+    primary_limitation="Stoniness; otherwise the friable loam cultivates with ease, though organic matter and fertility need maintaining.",
+    management_recommendations=["Organic matter and fertility maintenance are necessary for successful crop production"],
+    acreage=13300, report_pages={"start": 28, "end": 30},
+    original_description=("Characterized by slightly to strongly rolling topography, the Darlington series occupies slightly over 5% of the surveyed area. The underlying till is derived largely from Trenton limestone.\n\n"
+        "The topography varies from slightly to strongly rolling. Most of the slopes range from 5-10% with an occasional steeper one. The topographical features do not interfere with cultivation. Both external and internal drainage are good. "
+        "Although Darlington loam has suffered slightly from sheet erosion, it has not seriously affected the capability of the type for agricultural use.\n\n"
+        "Most of the Darlington loam is cleared of trees and used for dairy and specialized farming. This soil is well adapted to the growing of alfalfa, clovers and corn. Canning crops are frequently grown. "
+        "With the exception of stoniness, the Darlington soil with its friable consistency and loamy texture can be cultivated with ease. Organic matter and fertility maintenance are necessary for successful crop production."),
+    interpretation=("One of the deeper, well-drained soils in the County, formed on limestone till, and rated good for every crop in the 1948 tables except tree fruits (good to fair). "
+        "Stones and some erosion on slopes were the main drawbacks noted. "
+        "It is likely among the more forgiving soils for general growing, though field stones and slope position may matter at a given site."),
+    historical_wording="Good crop land",
+    data_notes=["Report text gives topography as 'slightly to strongly rolling', slopes mostly 5-10% (digit partly unclear in scan)."])
+
+# ---------------- Waupoos ----------------
+add("Wc", slug="waupoos-clay", series="Waupoos", type_name="Waupoos Clay", texture="clay",
+    soil_material="Lacustrine over limestone till",
+    parent_material="Water-laid lacustro-marine clay overlying calcareous limestone till",
+    bedrock="Occasionally within 3 ft; for the most part deeper",
+    drainage="Good", topography="Undulating to rolling", stoniness="Few stones", surface_reaction="About neutral",
+    soil_depth="Lacustrine veneer over till; till occasionally at 3 ft or less, very shallow on knolls",
+    surface_soil_description="4-6 inches dark brown clay and clay loam; organic matter medium; crumb structure; occasionally a few angular stones near till soils; pH 6.8.",
+    subsoil_description="Yellowish brown clay loam and a thin bleached grey clay layer over 2-4 inches dark brown clay (coarse blocky, brittle and compacted, pH 7.0), on grey brown plastic clay underlain by grey stony calcareous till.",
+    profile=[P("Ac", "4-6 inches", "Dark brown clay and clay loam; organic matter medium; crumb structure; occasionally a few angular stones appear where mapped in close association with till soils; pH 6.8"),
+             P("A21", "6-8 inches", "Yellowish brown clay loam; medium nuciform structure; brittle consistency; pH 6.2"),
+             P("A22", "2 inches", "Bleached grey clay; medium nuciform structure; brittle consistency; slightly mottled; pH 6.8"),
+             P("B", "2-4 inches", "Dark brown clay; coarse blocky structure; brittle and compacted consistency; pH 7.0"),
+             P("C", None, "Grey brown plastic clay; pH 7.4; underlain by grey stony calcareous till; pH 8.0")],
+    historical_crop_group=G1, historical_crop_ratings=R("G G G G G G-F G G-F F"),
+    historical_crops=["Small grains", "Hay", "Alfalfa", "Red clover", "Tomatoes", "Corn", "Peas", "Orchards"],
+    limitations=["Remains wet late in spring", "Sticky clay hampers equipment", "Puddles and bakes readily; difficult to work in spring", "Droughty in late summer in shallow areas", "Sheet erosion possible on rolling knolls under hoe crops"],
+    primary_limitation="Heavy clay that puddles and bakes readily and stays wet late in spring, making it difficult to work.",
+    management_recommendations=["Maintain fertility levels by application of barnyard manure",
+        "Maintenance of good tilth is necessary to successful management"],
+    acreage=6000, report_pages={"start": 31, "end": 32},
+    original_description=("Formed from lacustro-marine materials overlying calcareous till, the Waupoos clay is found in Ameliasburg, North Marysburg and Hallowell Townships. It is the well drained member of the Waupoos catena of which the Solmesville is the imperfectly drained member.\n\n"
+        "The type is well adapted to the growing of small grains and hay; good crops of alfalfa and red clover are produced on this soil. Canning crops of tomatoes, corn and peas, as well as orchards, grow well on the lighter textured clay loam areas. "
+        "This soil has a tendency to remain wet late in the spring and spraying equipment is moved with difficulty over the sticky clay. In the shallow areas the type becomes quite droughty in late summer at a time when fruit trees draw heavily upon the soil moisture.\n\n"
+        "The organic matter supply is medium and in general the fertility levels can be fairly well maintained by the application of barnyard manure. The physical properties of the soil are such that it puddles and bakes readily, which makes it rather difficult to work in the spring. "
+        "Maintenance of good tilth is necessary to the successful management of the Waupoos soil."),
+    interpretation=("A productive but heavy clay that the report placed among the County's good crop land, especially for grains, hay and legumes. "
+        "Its main practical difficulty appears to be timing: it stays wet in spring and can bake hard when dry. "
+        "Gardeners may find workability depends heavily on organic matter and on avoiding work when the soil is wet."),
+    historical_wording="Good crop land",
+    data_notes=["Report text gives topography as 'undulating to slightly rolling'."])
+
+# ---------------- Solmesville ----------------
+add("Sc", slug="solmesville-clay-loam", series="Solmesville", type_name="Solmesville Clay Loam", texture="clay loam",
+    soil_material="Lacustrine over limestone till",
+    parent_material="Lacustro-marine clay overlying heavy, stony calcareous till",
+    bedrock=None,
+    drainage="Imperfect", topography="Undulating", stoniness="Few stones", surface_reaction="Neutral to slightly alkaline",
+    soil_depth="Mottled clay over stony calcareous till at 2-3 ft",
+    surface_soil_description="4-6 inches dark brown clay loam; few stones; medium to high organic matter; crumb structure; pH 7.4.",
+    subsoil_description="6-10 inches greyish brown mottled clay loam (mottling increasing with depth) over 8-12 inches grey mottled clay loam with coarse blocky structure; mottled clay underlain by heavy, stony, calcareous till at 2-3 ft (pH 8.0).",
+    profile=[P("Ac", "4-6 inches", "Dark brown clay loam; few stones; medium to high organic matter; crumb structure; pH 7.4"),
+             P("A2", "6-10 inches", "Greyish brown mottled clay loam; intensity of mottlings increases with depth; blocky structure poorly developed; pH 7.2"),
+             P("B", "8-12 inches", "Grey mottled clay loam; coarse blocky structure; colour and structural characteristics poorly defined; pH 7.6"),
+             P("C", None, "The mottled clay is underlain by heavy, stony, calcareous till at depths ranging from 2-3 feet; pH 8.0")],
+    historical_crop_group=G3, historical_crop_ratings=R("F F F-P G-F G-F F-P F F-P P"),
+    historical_crops=["Hay", "Pasture", "Buckwheat", "Cereal grains"],
+    limitations=["Imperfect drainage (external and internal)", "Late soil in spring", "High clay content aggravates management"],
+    primary_limitation="Imperfect drainage makes it a late soil in the spring.",
+    management_recommendations=[],
+    acreage=1300, report_pages={"start": 33, "end": 33},
+    original_description=("The Solmesville clay loam is the imperfectly drained member of the Waupoos catena. It is one of the minor types of the county and for the most part, is found in Sophiasburg Township in the Solmesville area.\n\n"
+        "The topography of the Solmesville clay loam ranges from level to slightly undulating. Little or no erosion occurs on this type. Both external and internal drainage are imperfect. Internal drainage is impeded by the heavy texture while the topography does not facilitate ready external drainage.\n\n"
+        "Growing of hay crops and pasture are the chief uses made of the Solmesville clay loam. Because of imperfect drainage, it is a late soil in the spring with the result that buckwheat is one of the more important small grains grown on the type. "
+        "Soil management problems are aggravated by the high clay content. The type is fairly well supplied with plant nutrients."),
+    interpretation=("A heavy, mottled soil that stays wet into spring, used in 1948 mostly for hay and pasture. "
+        "It appears reasonably fertile but slow to dry out, so planting dates and crop choice are likely the key considerations. "
+        "Whether drainage improvement is practical would depend on the site; the report did not comment on it for this type."),
+    historical_wording="Fair crop land",
+    data_notes=["Map legend lists this as Clay (Sc); the report text, Part III list and Group III list all call it 'Solmesville clay loam'. type_name follows the report.",
+                "Report text gives topography as 'level to slightly undulating'."])
+
+# ---------------- South Bay ----------------
+sb_common = dict(series="South Bay", soil_material="Slightly calcareous lacustrine deposits",
+    parent_material="Stonefree, heavy sedimentary marine (lacustro-marine) clay deposits",
+    bedrock="Usually more than 3 ft below surface; shallower in places",
+    drainage="Good", topography="Undulating to rolling", stoniness="Stonefree", surface_reaction="Slightly acid to neutral",
+    soil_depth="Usually more than 3 ft over bedrock")
+
+add("SBc", slug="south-bay-clay", type_name="South Bay Clay", texture="clay", **sb_common,
+    surface_soil_description="4-6 inches light brown clay; stonefree; crumb structure; medium organic matter; friable; pH 6.6.",
+    subsoil_description="8-10 inches yellowish brown clay and 2-3 inches bleached clay over 10-12 inches dark brown blocky clay (firm, pH 6.8), on compact grey massive clay (pH 7.2).",
+    profile=[P("Ac", "4-6 inches", "Light brown clay; stonefree; crumb structure; medium organic matter; friable consistency; pH 6.6"),
+             P("A21", "8-10 inches", "Yellowish brown clay; stonefree; weak platy structure; slightly hard consistency; pH 6.4"),
+             P("A22", "2-3 inches", "Bleached yellowish brown clay; weak platy structure; fairly friable; pH 6.8"),
+             P("B", "10-12 inches", "Dark brown clay; stonefree; blocky structure; firm consistency; pH 6.8"),
+             P("C", None, "Grey clay; compact; massive structure; pH 7.2")],
+    historical_crop_group=G1, historical_crop_ratings=R("G G G G G G-F G G-F F-P"),
+    historical_crops=["Cereal grains", "Hay", "Canning crops", "Orchards"],
+    limitations=["Tendency to puddle when wet and bake when dry", "Slow internal drainage (high clay content, massive B horizon)", "Shallow areas very droughty in dry periods"],
+    primary_limitation="Heavy clay texture makes it difficult to manage, puddling when wet and baking when dry.",
+    management_recommendations=["Careful management is necessary to establish a satisfactory physical condition (heavy clay)",
+        "Provide an adequate organic matter content and maintain satisfactory nutrient levels"],
+    acreage=3400, report_pages={"start": 34, "end": 35},
+    original_description=("The South Bay series is formed from heavy, sedimentary marine clay materials; and is the well drained member of the catena of the same name.\n\n"
+        "The veneer of clay over bedrock exceeds three feet in depth over most of the area mapped. Shallow areas, where the bedrock is not far removed, become very droughty in periods of low precipitation. "
+        "The external drainage is good but the internal drainage is often rather slow due to the high clay content and the massive consistency of the B horizon.\n\n"
+        "Dairy farming is carried on extensively on this type. Cereal grains, hay and canning crops grow satisfactorily, and in the Waupoos Peninsula a few orchards are found on the well drained heavy clay. "
+        "With satisfactory cultural practices, orchards appear to thrive on this soil. The heavy texture of the South Bay clay makes it difficult to manage since it has a tendency to puddle when wet and bake when dry."),
+    interpretation=("A deep, stone-free clay that the report rated good for most field crops. "
+        "Its heavy texture is the recurring theme: it can be sticky when wet and hard when dry, and water moves through it slowly. "
+        "Organic matter and careful timing of work are likely to matter more here than on lighter soils."),
+    historical_wording="Good crop land",
+    data_notes=["Report text gives topography as 'undulating to slightly rolling'.",
+                "B horizon label is missing in the scan; inferred as B from sequence."])
+
+add("SBcl", slug="south-bay-clay-loam", type_name="South Bay Clay Loam", texture="clay loam", **sb_common,
+    surface_soil_description="4-6 inches dark brown clay loam; stonefree; crumb structure; soft; medium organic matter; pH 6.8.",
+    subsoil_description="12-14 inches yellow brown clay loam (occasionally slightly mottled below) with a thin grey bleached layer, over 10-12 inches dark brown blocky clay (pH 6.8), on grey-brown silt and clay often with free carbonates (pH 7.6).",
+    profile=[P("Ac", "4-6 inches", "Dark brown clay loam; stonefree; crumb structure; soft consistency; medium organic matter; pH 6.8"),
+             P("A2", "12-14 inches", "Yellow brown clay loam; stonefree; weak platy structure; occasionally slight mottling may occur in the lower part of the horizon; pH 6.6. A thin grey bleached layer occurs above the B"),
+             P("B", "10-12 inches", "Dark brown clay; stonefree; medium blocky structure; firm consistency; pH 6.8"),
+             P("C", None, "Grey-brown silt and clay; stonefree; free carbonates usually occur, particularly if the bedrock is not far removed; pH 7.6")],
+    historical_crop_group=G1, historical_crop_ratings=R("G G G G G G G G-F G-F"),
+    historical_crops=["Fruit trees", "Tomatoes", "Corn", "Canning crops", "Cereal grains", "Hay", "Alfalfa"],
+    limitations=["Maintenance of organic matter", "Imperfect drainage in small included level/depressional areas"],
+    primary_limitation="Maintenance of organic matter is the major fertility problem.",
+    management_recommendations=["Build up the dark surface or organic layer by adding decomposing vegetable matter such as green manure, old hay, straw or barnyard manure",
+        "Some form of mulch system in orchards is better adapted to maintaining organic matter than clean cultivation",
+        "Burning of spoiled hay and straw should be discouraged; it could be used as a mulch in an orchard",
+        "Combine dairying with canning crops and orcharding so barnyard manure helps maintain organic matter"],
+    acreage=4800, report_pages={"start": 35, "end": 37},
+    original_description=("With the exception of small level to slightly depressional areas, that are not sufficiently large to plot on an inch to the mile scale of mapping, the South Bay clay loam has an undulating topography which facilitates external drainage. Over most of the type, the internal drainage is good to fair.\n\n"
+        "The undulating topography, friable consistency, and adequate nutrient supply adapt the South Bay clay loam to the growing of fruit trees. One of the main objectives in orchard soil management is to build up the dark surface or organic layer. "
+        "This may be accomplished by the addition of decomposing vegetable matter such as green manure, old hay, straw, or barnyard manure. From previous orchard soil surveys it was noted that some form of mulch system is better adapted to the maintenance of organic matter than is clean cultivation.\n\n"
+        "Tomatoes and corn are grown on the South Bay clay loam with good results. Maintenance of organic matter is a major fertility problem."),
+    interpretation=("A deep, stone-free, friable clay loam that the 1948 survey rated good for nearly all crops listed, including fruit trees. "
+        "The report's emphasis on adding organic matter and mulching suggests moisture holding was the key concern in this dry county. "
+        "It is probably one of the more versatile soils on the map, though small wet pockets were included in mapped areas."),
+    historical_wording="Good crop land",
+    data_notes=["Report text gives topography as undulating."])
+
+# ---------------- Elmbrook ----------------
+el_common = dict(series="Elmbrook", soil_material="Slightly calcareous lacustrine deposits",
+    parent_material="Stonefree lacustro-marine clay deposits",
+    drainage="Imperfect", topography="Level to undulating", stoniness="Stonefree", surface_reaction="Slightly acid to neutral")
+
+add("Ec", slug="elmbrook-clay", type_name="Elmbrook Clay", texture="clay", **el_common,
+    bedrock=None, soil_depth="Deep (areas with bedrock at 3 ft or less mapped as the shallow phase)",
+    surface_soil_description="4-6 inches light brown clay; stonefree; medium to low organic matter; crumb structure; friable; pH 6.6.",
+    subsoil_description="10 inches yellow brown mottled clay loam over 8-10 inches light brown mottled blocky clay (pH 7.0), on heavy plastic stonefree grey brown clay usually containing free carbonates (pH 7.2).",
+    profile=[P("Ac", "4-6 inches", "Light brown clay; stonefree; medium to low organic matter; crumb structure; friable consistency; pH 6.6"),
+             P("A2", "10 inches", "Yellow brown mottled clay loam; nuciform structure; firm consistency; pH 6.4"),
+             P("B", "8-10 inches", "Light brown mottled clay; blocky structure; brittle consistency; structural and textural difference between A2 and B horizon well defined; pH 7.0"),
+             P("C", None, "Heavy plastic, stonefree grey brown clay; massive structure; pH 7.2; usually contains free carbonates")],
+    historical_crop_group=G1, historical_crop_ratings=R("G G F G G G-F G G-F F-P"),
+    historical_crops=["Small grains", "Hay (timothy, alsike)", "Tomatoes", "Canning crops", "Barley (historically, for export)"],
+    limitations=["Imperfect drainage; slow internal drainage", "Tendency to puddle when wet and bake when dry", "Narrow range of moisture content for cultivation", "Poorly adapted to red clover and alfalfa", "Ill-suited for orcharding", "Organic matter maintenance"],
+    primary_limitation="Impeded drainage and heavy clay, which give it a narrow range of moisture content in which it can be cultivated satisfactorily.",
+    management_recommendations=["Improved drainage; the report notes the series should respond to tile draining",
+        "Organic matter maintenance is one of the main management problems"],
+    acreage=14500, report_pages={"start": 37, "end": 38},
+    original_description=("The Elmbrook series occupies slightly over 7.5% of the area and is the imperfectly drained member of the South Bay catena. It differs from the South Bay in that the profile is mottled and less well developed.\n\n"
+        "Most of the Elmbrook clay has been cleared and tilled. Under improved drainage conditions, it is adapted to general farming and the growing of small grains and hay. Because of its high clay content, the Elmbrook has a tendency to puddle when wet and bake when dry. "
+        "It has a narrow range of moisture content in which it can be cultivated satisfactorily.\n\n"
+        "Hay crops of timothy and alsike do well but the type is poorly adapted to red clover and alfalfa because of drainage limitations. Canning crops, especially tomatoes, are grown in fairly large quantities. "
+        "The heavy texture and impeded drainage make it ill-suited for orcharding purposes. Organic matter maintenance is one of the main management problems associated with the Elmbrook soils."),
+    interpretation=("A heavy, stone-free clay on broad plains that drains slowly. "
+        "The report still grouped it with the County's good crop land for grains, hay and tomatoes, but not for alfalfa or orchards. "
+        "Wet springs and a narrow window when the soil is workable are likely the practical issues; drainage and organic matter were the report's main levers."),
+    historical_wording="Good crop land",
+    data_notes=["Group I list (p. 72) gives Elmbrook clay 4,600 ac and Elmbrook clay loam 14,500 ac, swapped relative to Part III text and legend.",
+                "Report text gives topography as 'nearly level to undulating'."])
+
+add("Ec-s", slug="elmbrook-clay-shallow-over-bedrock", type_name="Elmbrook Clay, Shallow Phase", texture="clay",
+    phase="shallow over bedrock", **el_common,
+    bedrock="Limestone at 3 ft or less", soil_depth="3 ft or less over limestone bedrock",
+    surface_soil_description=None, subsoil_description=None, profile=[],
+    historical_crop_group=None, historical_crop_ratings=None, historical_crops=[],
+    limitations=["Shallowness to bedrock (3 ft or less)", "Imperfect drainage", "Excess moisture in wet periods and extreme droughtiness in dry periods where bedrock is close"],
+    primary_limitation="Bedrock within three feet, which the report links to excess moisture in wet periods and extreme droughtiness in dry periods.",
+    management_recommendations=[],
+    acreage=None, report_pages={"start": 37, "end": 39},
+    original_description=("When bedrock occurs at depths of three feet and less, the soil has been mapped as a shallow phase of the Elmbrook series.\n\n"
+        "Provided the mantle of soil over the limestone bedrock is sufficiently deep, the installation of tile drains would greatly facilitate the removal of water. "
+        "Where the bedrock is close to the surface, there is a tendency for the soil to suffer from excess moisture during wet periods and become extremely droughty in dry periods."),
+    interpretation=("This is Elmbrook clay where limestone lies within about three feet. "
+        "The report did not describe or rate it separately, but its comments suggest it can be both too wet and too dry depending on the season. "
+        "Expectations from the deeper Elmbrook rating should probably be tempered here."),
+    historical_wording=None,
+    data_notes=["Not described as a separate type and not listed in the Part IV crop groups or Part III acreage list; no separate acreage in the legend.",
+                "The second quoted paragraph is from the Elmbrook clay loam section (p. 39), which discusses shallow bedrock generally."])
+
+add("Ecl", slug="elmbrook-clay-loam", type_name="Elmbrook Clay Loam", texture="clay loam", **el_common,
+    bedrock="Limestone; close to the surface in places", soil_depth="Variable; tile drainage feasible where the mantle over bedrock is sufficiently deep",
+    surface_soil_description="6 inches dark brown clay loam; stonefree; crumb structure; medium organic matter; pH 6.8. More friable and workable than the clay.",
+    subsoil_description="10-12 inches grey silty clay loam, frequently mottled, over 8-10 inches mottled brown clay loam (coarse blocky, pH 7.0), on stonefree, massive, slightly calcareous grey-brown clay and silt (pH 7.2).",
+    profile=[P("Ac", "6 inches", "Dark brown clay loam; stonefree; crumb structure; medium organic matter; pH 6.8"),
+             P("A2", "10-12 inches", "Grey silty clay loam; medium nuciform structure; mottlings frequently occur in this horizon; stonefree; pH 6.6"),
+             P("B", "8-10 inches", "Mottled brown clay loam; coarse blocky structure; pH 7.0"),
+             P("C", None, "Grey-brown clay and silt; stonefree; massive; slightly calcareous; pH 7.2")],
+    historical_crop_group=G1, historical_crop_ratings=R("G G F G G G G G-F F-P"),
+    historical_crops=["Small grains", "Hay", "Cereal grains", "Red clover", "Alfalfa (better drained areas)", "Orchards (some)", "Tomatoes", "Peas", "Corn"],
+    limitations=["Imperfect drainage (external and internal)", "Where bedrock is close: excess moisture in wet periods, extreme droughtiness in dry periods"],
+    primary_limitation="Imperfect drainage; the report says the type is adapted to general farming provided drainage improvement is effected.",
+    management_recommendations=["Install tile drains where the soil mantle over bedrock is sufficiently deep",
+        "Use manure (e.g., from dairying) to maintain an adequate organic matter content"],
+    acreage=4600, report_pages={"start": 39, "end": 40},
+    original_description=("Most extensively located in Ameliasburg Township, the Elmbrook clay loam differs from the clay in having a more friable and workable surface soil.\n\n"
+        "The Elmbrook clay loam occurs in broad level plains, occasionally dissected by a stream course. Both the external and internal drainage are imperfect. Provided the mantle of soil over the limestone bedrock is sufficiently deep, the installation of tile drains would greatly facilitate the removal of water. "
+        "Where the bedrock is close to the surface, there is a tendency for the soil to suffer from excess moisture during wet periods and become extremely droughty in dry periods. The erosion hazard on the Elmbrook soils is very small.\n\n"
+        "Provided drainage improvement is effected, this type is adapted to general farming and the growing of small grains and hay. The surface soil is more friable than that of the clay and there is not the same tendency for the soil to puddle and bake."),
+    interpretation=("A stone-free, imperfectly drained clay loam on level plains, easier to work than Elmbrook clay. "
+        "The report rated it good for most field crops and vegetables but weaker for alfalfa and tree fruit. "
+        "Seasonal wetness is likely the main limit, and where rock is shallow the soil may swing between wet and dry."),
+    historical_wording="Good crop land",
+    data_notes=["Group I list (p. 72) gives Elmbrook clay loam 14,500 ac, swapped with Elmbrook clay relative to text and legend (4,600).",
+                "Report text gives topography as 'broad level plains'."])
+
+# ---------------- Brighton ----------------
+br_common = dict(series="Brighton", soil_material="Well sorted calcareous outwash",
+    drainage="Good", topography="Level to undulating", stoniness="Few stones", surface_reaction="Slightly acid to neutral")
+
+add("Bs", slug="brighton-sandy-loam", type_name="Brighton Sandy Loam", texture="sandy loam", **br_common,
+    parent_material="Coarse sandy, well-sorted outwash materials", bedrock=None,
+    soil_depth="Deep",
+    surface_soil_description="4-6 inches brown sand to sandy loam; stonefree; low organic matter; single grain and crumb structure; pH 6.0.",
+    subsoil_description="12-15 inches yellow sand over 2-3 inches brown sandy loam (very weak structure, pH 6.3), on well-sorted grey calcareous sand and gravel (pH 7.4).",
+    profile=[P("Ac", "4-6 inches", "Brown sand to sandy loam; stonefree; organic matter low; single grain and crumb structure; pH 6.0"),
+             P("A2", "12-15 inches", "Yellow sand; stonefree; single grain structure; pH 5.8"),
+             P("B", "2-3 inches", "Brown sandy loam; stonefree; very weak nuciform structure; occasionally poorly defined texturally but usually a well developed colour horizon is present; pH 6.3"),
+             P("C", None, "Well-sorted grey calcareous sand and gravel; pH 7.4")],
+    historical_crop_group=G3, historical_crop_ratings=R("F-P F-P F-P F F F F F F"),
+    historical_crops=["Canning crops", "Orchards (fair possibilities)", "Permanent pasture"],
+    limitations=["Low organic matter", "Excessive drainage / low moisture-holding capacity", "Low natural fertility", "Wind erosion of thin pastures", "Gullying along stream courses (Black River district)"],
+    primary_limitation="Low organic matter, excessive drainage and low natural fertility limit the capability of this type for most crops.",
+    management_recommendations=["Apply adequate supplies of manure and fertilizers to obtain fair yields of canning crops",
+        "Establish and maintain adequate fertility levels for orcharding"],
+    acreage=5000, report_pages={"start": 44, "end": 46},
+    original_description=("The Brighton sandy loam is formed from coarse sandy, well-sorted outwash materials.\n\n"
+        "Undulating to slightly rolling topography characterizes the Brighton sandy loam. The type has a low organic matter content and frequently the vegetative cover in permanent pastures is not sufficiently thick to prevent wind erosion from taking its toll. "
+        "In the Black River district \"live\" gullies are growing into the cultivated fields along the stream courses.\n\n"
+        "Low organic matter, excessive drainage and low natural fertility limit the capability of this type for the production of most crops. Canning crops are grown and provided adequate supplies of manure and fertilizers are applied, fair yields are obtained. "
+        "The type presents fair possibilities for orcharding, if adequate fertility levels are established and maintained."),
+    interpretation=("A deep, stone-free sandy soil that drains quickly and holds little water or nutrient. "
+        "The 1948 report rated it fair at best, with erosion on thin pastures and gullies near streams. "
+        "It is easy to work and warms early, but plants here are likely to depend on added organic matter, fertility and water."),
+    historical_wording="Fair crop land",
+    data_notes=["Report text gives topography as 'undulating to slightly rolling'; internal drainage in some cases excessive."])
+
+add("Bg", slug="brighton-gravelly-sand", type_name="Brighton Gravelly Sand", texture="gravelly sand", **br_common,
+    parent_material="Well-sorted gravelly and cobbly outwash, often as low elongated ridges",
+    bedrock="Usually more than 3 ft; shallow in places near limestone escarpments",
+    soil_depth="Gravelly sand usually exceeds 3 ft",
+    surface_soil_description="2-4 inches light brown gravelly sand; single grain; stony with well-rounded stones and cobbles; low organic matter; pH 6.5.",
+    subsoil_description="Yellow stony sand of variable thickness over 3-5 inches brown sandy loam (pH 6.6), on well-sorted grey gravel (pH 7.4).",
+    profile=[P("Ac", "2-4 inches", "Light brown gravelly sand; single grain structure; stony; organic matter low; pH 6.5"),
+             P("A2", "Variable", "Yellow sand; single grain structure; stony; variable thickness; pH 6.2"),
+             P("B", "3-5 inches", "Brown sandy loam; very weak nuciform structure; pH 6.6"),
+             P("C", None, "Well-sorted grey gravel; pH 7.4")],
+    historical_crop_group=G3, historical_crop_ratings=R("F-P F-P F-P F F F F F F-P"),
+    historical_crops=["Hay", "Tomatoes", "Canning crops"],
+    limitations=["Droughtiness (rapid internal drainage)", "Low fertility", "Extremely droughty where bedrock is shallow"],
+    primary_limitation="Coarse, open gravelly materials make the ridges droughty.",
+    management_recommendations=["Heavy applications of manure make the ridges fairly well suited to hay crops and tomatoes"],
+    acreage=1100, report_pages={"start": 46, "end": 47},
+    original_description=("The Brighton gravelly sand differs from the sandy loam in that the surface soil contains numerous well-rounded stones and cobbles and the underlying materials are gravelly and cobbly. This type usually occurs as low-lying elongated ridges.\n\n"
+        "The internal and external drainage of the Brighton gravelly sand are good to excessive. The open nature of the soil allows rapid internal movement of water, creating an almost droughty condition in the type.\n\n"
+        "The coarse, open, gravelly materials tend to make the ridges droughty but with heavy applications of manure they appear fairly well suited to the growing of hay crops and tomatoes. For the most part, the depth of gravelly sand exceeds three feet. "
+        "However, in areas where the bedrock does occur at shallow depths along with the coarse materials, an extremely droughty condition prevails."),
+    interpretation=("Gravelly, cobbly ridges that drain very fast and hold little moisture. "
+        "The report found hay and tomatoes could do fairly well with heavy manuring, but rated most crops fair or lower. "
+        "Drought stress is likely the dominant concern, particularly where rock is near the surface."),
+    historical_wording="Fair crop land",
+    data_notes=["Named 'Brighton gravelly sandy loam' in the Part III list (p. 28) and 'Brighton gravelly loam' in Table 10; section heading and legend use 'gravelly sand'.",
+                "Legend stoniness 'Few stones', but report says surface contains numerous stones and cobbles."])
+
+# ---------------- Percy ----------------
+add("Pfs", slug="percy-fine-sandy-loam", series="Percy", type_name="Percy Fine Sandy Loam", texture="fine sandy loam",
+    soil_material="Well sorted calcareous outwash",
+    parent_material="Fine sandy, stonefree, well-sorted outwash materials",
+    bedrock="Limestone; influences a fairly large portion of the soil, at 3 ft or less in places",
+    drainage="Good", topography="Undulating to rolling", stoniness="Stonefree", surface_reaction="Slightly acid to neutral",
+    soil_depth="Often 18-36 inches where bedrock influences the profile",
+    surface_soil_description="4-6 inches brown fine sandy loam; stonefree; medium organic matter; crumb structure; soft; pH 6.2.",
+    subsoil_description="6-10 inches yellow brown fine sandy loam over 2-5 inches dark brown loam to clay loam (pH 6.4), on heavy loam to clay loam with occasional silt layers (pH 7.2); limestone bedrock may appear at 3 ft or less.",
+    profile=[P("Ac", "4-6 inches", "Brown fine sandy loam; stonefree; medium organic matter; crumb structure; soft consistency; pH 6.2"),
+             P("A2", "6-10 inches", "Yellow brown fine sandy loam; stonefree; single grain to weak platy structure; soft consistency; pH 5.8"),
+             P("B", "2-5 inches", "Dark brown loam to clay loam; small nuciform structure; consistency slightly hard; pH 6.4"),
+             P("C", None, "Heavy loam to clay loam; pH 7.2. Occasionally silt layers occur in conjunction with the loam and clay loam. Limestone bedrock may appear at depths of 3 feet and less")],
+    historical_crop_group=G1, historical_crop_ratings=R("G G G-F G-F G-F G G G G-F"),
+    historical_crops=["Tomatoes", "Corn", "Peas", "Small fruits", "Small grains", "Hay", "Orchards (where deep enough)"],
+    limitations=["Droughty in periods of low rainfall where bedrock is close", "Water erosion under canning crops", "Low fertility levels", "Shallow rooting where bedrock is shallow"],
+    primary_limitation="Closeness of bedrock over a fairly large portion tends to make it droughty in periods of low rainfall.",
+    management_recommendations=["Protective measures should be employed to control water erosion",
+        "Use manure and fertilizer to take care of the low fertility levels that commonly occur"],
+    acreage=4000, report_pages={"start": 47, "end": 49},
+    original_description=("The Percy fine sandy loam is developed on fine sandy, stonefree outwash materials. Over half of Waupoos Island is covered with friable, fertile Percy fine sandy loam. "
+        "Bedrock influences a fairly large portion of the soil, resulting in a shallow profile, 18 inches to 36 inches in depth. The closeness of bedrock tends to make it droughty in periods of low rainfall.\n\n"
+        "This soil is adapted to growing a wide range of crops. Good crops of tomatoes, corn and peas, as well as small fruits, are produced. Favorable physical and chemical properties make it especially suited to the production of most specialized crops.\n\n"
+        "Where the land is not used for the production of specialized crops, dairy farming is successfully conducted. The type is well suited to the production of small grains and hay. "
+        "Provided the soil materials are sufficiently deep, fairly good orchards can be established but the appearance of bedrock at shallow depths results in a shallow rooting system and greatly lessens the suitability of the soil for this purpose."),
+    interpretation=("A soft, stone-free fine sandy loam that the report considered especially suited to vegetables and specialized crops. "
+        "Where limestone is within a couple of feet it can dry out and limit deep roots such as fruit trees. "
+        "It is likely one of the more garden-friendly soils on the map, with fertility and moisture as the things to watch."),
+    historical_wording="Good crop land",
+    data_notes=["Part III calls it 'friable, fertile' on Waupoos Island, while Part IV (p. 73) notes low fertility levels commonly occur; both are quoted as written.",
+                "Report text gives topography as 'undulating to slightly rolling'."])
+
+# ---------------- Tecumseth ----------------
+add("Tsl", slug="tecumseth-sandy-loam", series="Tecumseth", type_name="Tecumseth Sandy Loam", texture="sandy loam",
+    soil_material="Well sorted calcareous outwash", parent_material="Outwash sandy materials", bedrock=None,
+    drainage="Imperfect", topography="Level to undulating", stoniness="Stonefree", surface_reaction="About neutral",
+    soil_depth=None,
+    surface_soil_description="6-10 inches dark brown sandy loam; crumb structure; stonefree; medium organic matter; pH 7.0.",
+    subsoil_description="10-15 inches greyish yellow sand to sandy loam with mottling increasing with depth, over 4-6 inches mottled sandy loam, on well-sorted calcareous grey sand and silt (pH 7.6).",
+    profile=[P("Ac", "6-10 inches", "Dark brown sandy loam; crumb structure; stonefree; organic matter medium; pH 7.0"),
+             P("A2", "10-15 inches", "Greyish yellow sand to sandy loam; single grain structure; stonefree; mottling may appear in the upper part of the A2 becoming more intense with depth; pH 6.8"),
+             P("B", "4-6 inches", "Mottled sandy loam; single grain structure; poorly developed textural horizon; pH 7.0"),
+             P("C", None, "Grey sand and silt; well-sorted; calcareous; pH 7.6")],
+    historical_crop_group=G3, historical_crop_ratings=R("F-P F-P F-P F F F F F F"),
+    historical_crops=["Pasture", "Tomatoes (where drainage is adequate)", "Buckwheat (in wet springs)", "Orchards (some)"],
+    limitations=["Imperfect drainage", "Low natural fertility", "Organic matter and nutrient maintenance after drainage"],
+    primary_limitation="Imperfect drainage combined with low natural fertility.",
+    management_recommendations=["Sound fertility-building practices must be employed for successful production of most crops",
+        "Orchards could be improved if the soil were tile drained; the report says the type should respond to tile drainage",
+        "With improved drainage and more intensive cropping, maintain adequate organic matter and nutrient levels"],
+    acreage=4200, report_pages={"start": 49, "end": 50},
+    original_description=("Most of the Tecumseth sandy loam mapped in Prince Edward County is located close to the County boundary in Ameliasburg Township. Formed from outwash sandy materials, this soil is the imperfectly drained member of the Brighton catena.\n\n"
+        "Most of the Tecumseth remains in pasture with dairy farming being carried on to some extent. Because of the imperfect drainage, there is little successful tree fruit production but fair crops of tomatoes are grown where drainage is adequate. "
+        "The natural fertility is low and sound fertility-building practices must be employed to permit the successful production of most crops. In abnormally wet springs large acreages of buckwheat are grown.\n\n"
+        "Some orchards have already been established and could be improved if the soil were tile drained. Under natural drainage conditions the type is fairly well supplied with organic matter. "
+        "However, with improved drainage and more intensive cropping, maintenance of adequate organic matter content and nutrient levels becomes a soil management problem."),
+    interpretation=("A sandy soil with a seasonally high water table, shown by mottling below the surface. "
+        "The report rated it fair, noting low natural fertility and better results where drainage was adequate. "
+        "Sites may be wet in spring yet still need added fertility; how wet a given spot is likely varies with its position."),
+    historical_wording="Fair crop land",
+    data_notes=["Report text gives topography as 'almost level to slightly undulating'."])
+
+# ---------------- Granby ----------------
+add("Gs", slug="granby-sandy-loam", series="Granby", type_name="Granby Sandy Loam", texture="sandy loam",
+    soil_material="Well sorted calcareous outwash", parent_material="Well-sorted outwash sandy materials", bedrock=None,
+    drainage="Poor", topography="Level to depressional", stoniness="Stonefree", surface_reaction="Neutral to slightly alkaline",
+    soil_depth=None,
+    surface_soil_description="6-10 inches dark brown sand; single grain; high organic matter; pH 7.2.",
+    subsoil_description="5-10 inches grey or grey mottled sand over 10-20 inches greyish and yellowish brown sand with rusty mottling, on grey sorted coarse calcareous sand, sometimes grading into heavy plastic clay at 3 ft or more (pH 7.6).",
+    profile=[P("Ac", "6-10 inches", "Dark brown sand; single grain structure; high organic matter; pH 7.2"),
+             P("A2", "5-10 inches", "Grey or grey mottled sand; single grain structure; pH 7.2"),
+             P("G", "10-20 inches", "Greyish brown and yellowish brown sand with rusty mottling; single grain structure; pH 7.2"),
+             P("C", None, "Grey sorted coarse calcareous sand, sometimes grading into heavy plastic clay at depths of 3 feet or more; pH 7.6")],
+    historical_crop_group=G4, historical_crop_ratings=R("P P P F-P F P P P P"),
+    historical_crops=["Hay (fair)", "Pasture (fair)"],
+    limitations=["Poor drainage", "Difficult and possibly uneconomical to drain (topographic position)", "After drainage, poor retention of water and organic matter (coarse materials)"],
+    primary_limitation="Poor drainage is the greatest limitation for successful crop production.",
+    management_recommendations=["Drainage improvement would be desirable for high value cash crops, but is very doubtful for low value grain crops or pasture",
+        "Much of the Granby serves a very useful purpose when left in permanent pasture or woodland"],
+    acreage=850, report_pages={"start": 50, "end": 51},
+    original_description=("Formed from well-sorted outwash sandy materials, the Granby sandy loam is a neutral to alkaline soil with poor natural drainage. It generally occurs in depressional areas. The Granby series is the poorly drained member of the Brighton catena.\n\n"
+        "Both the external and internal drainage are poor. Due to its topographic position it is usually difficult to drain and as a result the cost of drainage improvement may be uneconomical and prohibitive. "
+        "However, where drainage improvement can be effected without too much difficulty the capability of this soil to produce crops is greatly increased.\n\n"
+        "Very few good farms are developed entirely on the Granby soils, which produce only fair crops of hay and pasture. The production of most crops is limited by the poor drainage condition. "
+        "However, once it is improved the retention of water and organic matter is a problem because of the coarseness of the materials. Much of the Granby is serving a very useful purpose when left in permanent pasture or woodland."),
+    interpretation=("A dark-topped, poorly drained sandy soil in low spots. "
+        "The 1948 report saw it mainly as pasture or woodland and questioned whether draining it would pay except for high-value crops. "
+        "Standing water and high water tables are likely the main constraint; wetland-tolerant plantings may be better suited than conventional crops."),
+    historical_wording="Fair to poor crop land",
+    data_notes=["Named sandy loam, but the typical profile describes the surface as sand."])
+
+# ---------------- Pontypool ----------------
+pp_common = dict(series="Pontypool", soil_material="Poorly sorted calcareous outwash",
+    drainage="Good", topography="Strongly rolling to hilly", stoniness="Stony", surface_reaction="Slightly acid to neutral", bedrock=None)
+
+add("Psl", slug="pontypool-sandy-loam", type_name="Pontypool Sandy Loam", texture="sandy loam", **pp_common,
+    parent_material="Stony, sandy calcareous drift (poorly sorted fluvio-glacial material) derived chiefly from Trenton limestone",
+    soil_depth="Deep; sandy materials deeper on ridge crowns than on edges",
+    surface_soil_description="5-7 inches brown sandy loam; medium to low organic matter; crumb structure; few stones; pH 6.2.",
+    subsoil_description="15-20 inches yellow brown sandy loam and about 4 inches light yellow brown sandy loam over about 6 inches compact brown loam (pH 6.6), on light grey sandy, stony calcareous till (pH 7.2).",
+    profile=[P("Ac", "5-7 inches", "Brown sandy loam; medium to low organic matter; crumb structure; few stones; pH 6.2"),
+             P("A21", "15-20 inches", "Yellow brown sandy loam; weak platy structure; few stones; pH 6.0"),
+             P("A22", "4 inches", "Light yellow brown sandy loam; single grain structure; slightly compacted; occasional stone; pH 6.4"),
+             P("B", "6 inches", "Brown loam; small nuciform structure; compact; occasional stones; pH 6.6"),
+             P("C", None, "Light grey, sandy, stony calcareous till; pH 7.2")],
+    historical_crop_group=G2, historical_crop_ratings=R("F F G-F G-F G-F G G G G-F"),
+    historical_crops=["Corn", "Peas", "Tomatoes", "Cereal grains", "Tree fruits", "Hay"],
+    limitations=["Erosion hazard (rolling topography, row crops)", "Organic matter and fertility need heavy manuring"],
+    primary_limitation="Rolling topography and row cropping make it susceptible to sheet erosion; organic matter and nutrient levels need maintaining.",
+    management_recommendations=["Heavy applications of manure to maintain and build up organic matter",
+        "Protective measures to control the erosion hazard",
+        "Incorporate legumes in the grass seed mixture",
+        "Maintain fertility and an adequate supply of organic matter",
+        "Maintain grass cover in natural drainage areas to prevent gully erosion",
+        "Use sod mulch in orchards to reduce sheet erosion"],
+    acreage=3000, report_pages={"start": 41, "end": 42},
+    original_description=("The Pontypool sandy loam occurs as a rolling plain of stony, sandy calcareous drift derived chiefly from Trenton limestone. This type frequently occurs as long oval ridges, particularly in the West Lake district. The sandy materials on the crowns of these ridges are usually much deeper than on the edges.\n\n"
+        "A wide range of crops are grown on this soil. The Pontypool sandy loam is an early soil, can be cultivated with ease and is well adapted to the production of corn, peas and tomatoes. Usually the farm business consists of a combination of dairying, canning crop production and fruit growing. "
+        "Since the sandy loam requires heavy applications of manure to maintain and build up the organic matter content, the combination of dairy farming and growing of canning crops works out very well.\n\n"
+        "Cereal grains, tree fruits and hay do well on the Pontypool sandy loam. For the most part, this type is located close to good markets and this, along with its adaptability for growing a wide range of crops, make it one of the better agricultural soils in the area."),
+    interpretation=("An early-warming, easily worked sandy loam on rolling ridges that the report called one of the better agricultural soils in the area. "
+        "It rated good for peas, tomatoes and corn, and less strongly for small grains. "
+        "Slopes and erosion are the main cautions, and the report's advice centred on organic matter and keeping ground covered."),
+    historical_wording="Good to fair crop land",
+    data_notes=["Report text gives topography as 'undulating to strongly rolling', slopes mostly 5-15%; legend gives Strongly rolling to hilly."])
+
+add("Ps", slug="pontypool-sand", type_name="Pontypool Sand", texture="sand", **pp_common,
+    parent_material="Coarse sand to cobbly gravel (poorly sorted fluvio-glacial material), mostly on the Picton esker",
+    soil_depth="Deeply weathered profile",
+    surface_soil_description="4-6 inches dark brown sand; some cobblestones; low organic matter; single grain; pH 6.2.",
+    subsoil_description="6-15 inches yellow coarse sand with cobblestones (pH 5.8) over 2-3 inches brown sandy loam, on calcareous cobbly grey sand and gravel (pH 7.2).",
+    profile=[P("Ac", "4-6 inches", "Dark brown sand; some cobblestones; low in organic matter; single grain structure; pH 6.2"),
+             P("A2", "6-15 inches", "Yellow coarse sand; some cobblestones; single grain structure; pH 5.8"),
+             P("B", "2-3 inches", "Brown sandy loam; tending to a weak nuciform structure, occasionally poorly defined; pH 6.6"),
+             P("C", None, "Calcareous; cobbly grey sand and gravel; pH 7.2")],
+    historical_crop_group=G4, historical_crop_ratings=R("P P P P P F-P F-P F-P F-P"),
+    historical_crops=["Canning crops", "Potatoes", "Tomatoes (fair)", "Corn (fair)", "Pasture"],
+    limitations=["Low fertility", "Excessive drainage / low moisture-holding capacity", "Water and wind erosion", "Droughty; not well suited for pasture"],
+    primary_limitation="Low fertility and excessive drainage, with susceptibility to wind erosion.",
+    management_recommendations=["Efficient fertility practices are needed to produce fair crops of tomatoes and corn"],
+    acreage=1400, report_pages={"start": 43, "end": 44},
+    original_description=("Most of the Pontypool sand mapped in Prince Edward County is found on the Picton esker. This type is characterized by materials ranging from coarse sand to cobbly gravel, a deeply weathered profile and steep topography.\n\n"
+        "The topography ranges from slightly to steeply rolling. Usually the slopes occur in the 8-15% class although the occasional 15-25% slope is found. The topographic characteristics of this soil type make it susceptible to both water and wind erosion. "
+        "The rolling topography and coarse textured materials result in good to excessive drainage and rather low moisture-holding capacity.\n\n"
+        "This type is most commonly used for growing canning crops, potatoes and pasture. The main problem in crop production is low fertility and excessive drainage. Provided efficient fertility practices are employed, the type produces fair crops of tomatoes and corn. "
+        "Potatoes are grown with fair success. Because of its droughty nature it is not well suited for pasture purposes."),
+    interpretation=("Coarse, cobbly sand on steep esker slopes that drains excessively and is low in nutrients. "
+        "The report rated it poor for field crops and only fair-to-poor for vegetables and fruit. "
+        "Drought and erosion are likely the controlling factors, so heavy inputs of water and organic matter would probably be needed for most plantings."),
+    historical_wording="Fair to poor crop land",
+    data_notes=["Report text gives topography as 'slightly to steeply rolling', slopes mostly 8-15%."])
+
+# ---------------- Eastport ----------------
+add("Es", slug="eastport-sand", series="Eastport", type_name="Eastport Sand", texture="sand",
+    soil_material=None, parent_material="Coarse grey sands and fine gravel, reworked by lake waters and wind (dunes and sand bars)",
+    bedrock=None, drainage="Excessive", topography="Dunes", stoniness=None, surface_reaction="Variable",
+    soil_depth=None,
+    surface_soil_description="Where a scanty vegetative cover has been established, usually a thin grey surface layer; stone-free, sometimes calcareous throughout.",
+    subsoil_description="Coarse yellowish brown sand fading into grey sands and fine gravel at depths of 24 inches and greater.",
+    profile=[],
+    historical_crop_group=SUB, historical_crop_ratings=R("P P P P P P P P P"),
+    historical_crops=[],
+    limitations=["Severe wind erosion", "Shifting sand; nearly bare of vegetation", "Practically no agricultural value"],
+    primary_limitation="Shifting, severely wind-eroded sand dunes of practically no agricultural value.",
+    management_recommendations=["Reforestation to stabilize the dunes (the report notes fair success with pine and poplar)"],
+    acreage=1400, report_pages={"start": 62, "end": 62},
+    original_description=("The Eastport sand is derived from coarse grey sands and fine gravel. The profile exhibits very little horizon differentiation. Where a scanty vegetative cover has been established, there is usually a thin grey surface layer underlain by coarse yellowish brown sand which fades into grey sands and fine gravel at depths of 24 inches and greater. "
+        "The profile is stone-free and is sometimes calcareous throughout.\n\n"
+        "For the most part this soil occurs as sand dunes which have been severely wind eroded, and are of practically no agricultural value. Often they are nearly bare of vegetative cover. "
+        "The Ontario Department of Lands and Forests has reforested some of these areas with pine and poplar and have experienced a fair measure of success in stabilizing the dunes."),
+    interpretation=("This is the Sandbanks dune and sand-bar country. "
+        "The 1948 report treated it as having no farm value and focused on stabilizing the dunes and on its recreational draw. "
+        "Today these are largely sensitive natural and protected areas rather than growing land."),
+    historical_wording="Submarginal crop land",
+    data_notes=["Report text gives 'rolling to hilly sandy ridges' and 'sand dunes'."])
+
+# ---------------- Muck ----------------
+add("M", slug="muck", series="Muck", type_name="Muck", texture="muck (organic)",
+    soil_material="Miscellaneous", parent_material="Semi-decomposed vegetative material",
+    bedrock="Usually underlain by bedrock at fairly shallow depths (or mottled clay or silt)",
+    drainage="Very poor", topography="Level to depressional", stoniness=None, surface_reaction="Usually alkaline",
+    soil_depth="Organic layer usually 1-3 ft",
+    surface_soil_description="Organic layer of semi-decomposed vegetative material, 1-3 ft deep; usually neutral to alkaline on the surface.",
+    subsoil_description="Underlain by mottled clay, silt or bedrock.",
+    profile=[P("Organic layer", "1-3 feet", "Semi-decomposed vegetative material; usually neutral to alkaline on the surface"),
+             P("Clay", None, "Clay"), P("Rock", None, "Bedrock")],
+    historical_crop_group=G4, historical_crop_ratings=R("P P P P P P P P P"),
+    historical_crops=[],
+    limitations=["Poor drainage", "Shallow bedrock", "Clearing and drainage required; cost doubtful"],
+    primary_limitation="Poorly drained; development would require clearing and drainage that the report doubted would pay.",
+    management_recommendations=["The report considered it to serve a useful purpose left wooded under present conditions"],
+    acreage=13100, report_pages={"start": 64, "end": 64},
+    original_description=("The muck is usually shallow varying in depth from 1 to 3 feet and underlain by mottled clay, silt or bedrock. The Big Swamp, located in the central part of the county, is the largest single expanse of muck mapped. Other areas are widely scattered over the area surveyed.\n\n"
+        "Practically no agricultural development has taken place on the muck soils. For the most part it remains wooded with elm, cedar and ironwood, thus serving a useful purpose under present conditions. "
+        "To grow crops on the muck soils would necessitate clearing and drainage and it is very doubtful if the returns would warrant the expenditure involved for development."),
+    interpretation=("Shallow organic soil in wet, wooded swamps such as the Big Swamp. "
+        "The report rated it poor for all listed crops and saw it as best left wooded. "
+        "Today such areas often function as wetlands, and any change in use may be subject to environmental rules."),
+    historical_wording="Fair to poor crop land",
+    data_notes=["Grouped by the report in Group IV (Fair to Poor) despite 'P' ratings for every crop in Table 11.",
+                "Profile entries are labels from the report's schematic diagram."])
+
+# ---------------- Marsh ----------------
+add("Ma", slug="marsh", series="Marsh", type_name="Marsh", texture=None,
+    soil_material="Miscellaneous", parent_material="Semi-decomposed organic matter mixed with mineral matter, over compact subsoil or bedrock",
+    bedrock="Water held at surface by compact subsoil or bedrock",
+    drainage="Very poor", topography=None, stoniness=None, surface_reaction=None,
+    soil_depth="6-10 inches of semi-decomposed organic matter (usually)",
+    surface_soil_description="Usually 6-10 inches of semi-decomposed organic matter mixed with mineral matter.",
+    subsoil_description="Compact subsoil or bedrock holding water on the surface.",
+    profile=[],
+    historical_crop_group=SUB, historical_crop_ratings=R("P P P P P P P P P"),
+    historical_crops=[],
+    limitations=["Flooded most of the time", "Practically no agricultural potential"],
+    primary_limitation="Flooded most of the time and of practically no agricultural value.",
+    management_recommendations=[],
+    acreage=13300, report_pages={"start": 62, "end": 63},
+    original_description=("Large tracts of marsh occur in the low lying and swampy positions in the Muscote Bay area, and again in the Big Island area. The water is held on the surface of the soil by a compact subsoil or bedrock. Much of the marsh land is on a similar level to the Bay of Quinte. "
+        "Usually the surface soil consists of 6-10 inches of semi-decomposed organic matter mixed with mineral matter. Most of these areas are covered with a ground vegetation of sedges, cattails, rushes and a few trees, mostly cedar and elm.\n\n"
+        "The agricultural potentialities of the marsh land are practically nil. It is used for recreational purposes such as trapping and duck shooting and in this serves a useful purpose. "
+        "Muskrat trapping is carried on fairly extensively in the marsh land and the income derived from this industry is considerable."),
+    interpretation=("Open wetland with sedges, cattails and rushes, much of it near the level of the Bay of Quinte. "
+        "The report saw no farm value but noted its use for trapping and hunting. "
+        "Today these are generally valued as wetland habitat rather than land for growing."),
+    historical_wording="Submarginal crop land",
+    data_notes=["The report's schematic shows water, decayed vegetative matter, clay and rock; no horizon depths given beyond the 6-10 inch surface."])
+
+# ---------------- Bottom Land ----------------
+add("B.L.", slug="bottom-land", series="Bottom Land", type_name="Bottom Land", texture=None,
+    soil_material="Miscellaneous", parent_material="Dark materials high in organic matter washed in by streams, over clay, till or bedrock",
+    bedrock=None, drainage="Variable", topography=None, stoniness=None, surface_reaction="Variable",
+    soil_depth=None,
+    surface_soil_description="Usually a deep layer of dark materials, high in organic matter, washed in by streams.",
+    subsoil_description="Clay, till or bedrock.",
+    profile=[],
+    historical_crop_group=G4, historical_crop_ratings=R("P P P P F P P P P"),
+    historical_crops=["Pasture", "Woodland"],
+    limitations=["Subject to flooding", "High water table"],
+    primary_limitation="Subject to frequent flooding along stream courses.",
+    management_recommendations=[],
+    acreage=950, report_pages={"start": 65, "end": 65},
+    original_description=("Very little Bottom Land was mapped in the county. Bottom Land is mapped along stream courses in areas subject to frequent flooding. Since the streams that occur in this area are small there has been very little recent alluvial material deposited. "
+        "Characterized by deep organic layers, and a high water table it occupies a small acreage.\n\n"
+        "Usually it is used for pasture or left in woodland adjoining the streams."),
+    interpretation=("Low ground along small streams that floods and has a high water table. "
+        "The report rated it fair only for hay and pasture and poor otherwise. "
+        "Flood timing likely determines what is practical, and streamside areas today may also carry conservation considerations."),
+    historical_wording="Fair to poor crop land",
+    data_notes=[])
+
+# ---------------- Rock ----------------
+add("R", slug="rock", series="Rock", type_name="Rock", texture=None,
+    soil_material="Miscellaneous", parent_material=None,
+    bedrock="Limestone at or near the surface (escarpments)",
+    drainage="Excessive", topography=None, stoniness=None, surface_reaction="Alkaline",
+    soil_depth="Little or no soil over bedrock",
+    surface_soil_description="Little or no soil covering over the bedrock.",
+    subsoil_description=None, profile=[],
+    historical_crop_group=SUB, historical_crop_ratings=R("P P P P P P P P P"),
+    historical_crops=[],
+    limitations=["Little or no soil", "Steep, bold escarpments", "Very limited even for pasture"],
+    primary_limitation="Little or no soil over bedrock, usually as steep, bold escarpments.",
+    management_recommendations=["The report suggested outcrop along lakes and bays has high potential value for recreational purposes"],
+    acreage=2500, report_pages={"start": 66, "end": 66},
+    original_description=("Areas mapped as rock are found along the face of, or in close association with the escarpments. The rock outcrop is of practically no agricultural value. The most common vegetative cover is red cedar and sumachs. "
+        "Usually found included with pasture land their capability for this purpose is very limited.\n\n"
+        "Areas mapped as rock have little or no soil covering over the bedrock. Usually occur as steep, bold escarpments."),
+    interpretation=("Exposed limestone and escarpment faces with almost no soil. "
+        "The report rated it poor for all crops and pointed to recreational value along shorelines. "
+        "Little can be grown here beyond what naturally colonizes cracks and ledges."),
+    historical_wording="Submarginal crop land",
+    data_notes=["Group list calls it 'Rock Outcrop'."])
+
+expected = "Fl Fl-i Acl Al Ac-i Asl Gc Hc Dl Wc Sc SBc SBcl Ec Ecl Ec-s Bs Bg Pfs Tsl Gs Psl Ps Es M Ma B.L. R".split()
+assert set(units) == set(expected), set(expected) ^ set(units)
+ordered = {k: units[k] for k in expected}
+
+out = {
+    "source": {
+        "title": "Soil Survey of Prince Edward County",
+        "series": "Ontario Soil Survey Report No. 10",
+        "authors": ["N. R. Richards", "F. F. Morwick"],
+        "date": "November 1948",
+        "publisher": "Experimental Farms Service, Dominion Department of Agriculture, and the Ontario Agricultural College",
+        "pages_note": "report_pages are printed page numbers (they match PDF page numbers in on10_report.pdf).",
+        "notes": [
+            "Symbol, acreage, drainage, soil material, topography, stoniness and surface reaction follow the original map legend; differences from the report text are recorded per unit in data_notes.",
+            "historical_crop_group and historical_crop_ratings are from Part IV (pp. 72-77, Tables 8-12). Ratings: G = Good, G-F = Good to Fair, F = Fair, F-P = Fair to Poor, P = Poor.",
+            "original_description is quoted from the report with OCR errors corrected; interpretation is a modern plain-language reading and is not part of the 1948 report."
+        ]
+    },
+    "units": ordered,
+}
+path = "/Users/hank/repos/pecsoilmap/src/data/soil-units.json"
+os.makedirs(os.path.dirname(path), exist_ok=True)
+with open(path, "w") as f:
+    json.dump(out, f, indent=2, ensure_ascii=False)
+    f.write("\n")
+print(len(ordered))
