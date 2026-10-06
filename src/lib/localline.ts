@@ -72,13 +72,10 @@ async function api<T>(path: string, retry = true): Promise<T> {
   return res.json() as Promise<T>
 }
 
-// The products endpoint only accepts the price list's pk; the storefront URL uses its slug.
-let priceListPromise: Promise<{ id: number; slug: string }> | null = null
-const defaultPriceList = () =>
-  (priceListPromise ??= api<{ id: number; slug: string }>('price-lists/default/').catch((e) => {
-    priceListPromise = null
-    throw e
-  }))
+// The default price list. The storefront URLs use its slug, but the products endpoint only
+// accepts its pk; `price-lists/default/` can't be used to look it up because Local Line answers
+// it with a redirect when called through the proxy.
+export const PRICE_LIST = { id: 5271, slug: 'resto' }
 
 // The info panel is mounted twice (desktop aside + mobile sheet), so share requests briefly.
 const FRESH_MS = 60_000
@@ -94,8 +91,7 @@ export function vendorProducts(vendorId: number): Promise<Product[]> {
 }
 
 async function fetchVendorProducts(vendorId: number): Promise<Product[]> {
-  const list = await defaultPriceList()
-  const data = await api<{ results: Entry[] }>(`price-lists/${list.id}/products/?vendors=${vendorId}&page_size=100`)
+  const data = await api<{ results: Entry[] }>(`price-lists/${PRICE_LIST.id}/products/?vendors=${vendorId}&page_size=100`)
   return data.results.map((e) => {
     const packs = [...e.package_price_list_entries].sort((a, b) => a.package_price - b.package_price)
     const cheapest = packs[0]
@@ -108,7 +104,7 @@ async function fetchVendorProducts(vendorId: number): Promise<Product[]> {
       multiplePrices: packs.length > 1,
       estimated: !!cheapest?.is_by_weight,
       soldOut: e.track_inventory && packs.every((p) => (p.number_of_packages_available ?? 0) <= 0),
-      url: `${STOREFRONT}/${list.slug}/product/${e.id}`,
+      url: `${STOREFRONT}/${PRICE_LIST.slug}/product/${e.id}`,
     }
   })
 }
