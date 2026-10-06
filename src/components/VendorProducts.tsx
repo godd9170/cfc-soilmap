@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PRICE_LIST, STOREFRONT, vendorProducts, type Product } from '../lib/localline'
+import { vendorProducts, vendorUrl, type Product } from '../lib/storefront'
 
 type State = { status: 'loading' } | { status: 'error' } | { status: 'ok'; products: Product[] }
 
@@ -26,7 +26,7 @@ export default function VendorProducts({ vendor }: { vendor: { id: number; slug:
     }
   }, [vendor.id])
 
-  const storeLink = `${STOREFRONT}/${PRICE_LIST.slug}/vendor/${vendor.slug}`
+  const storeLink = vendorUrl(vendor.slug)
 
   return (
     <div className="mt-4" aria-live="polite" aria-busy={state.status === 'loading'}>

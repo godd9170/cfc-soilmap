@@ -5,8 +5,7 @@
   "buildCommand": "pnpm build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/localline/(.*)", "destination": "/api/localline?path=$1" },
-    { "source": "/((?!data/|assets/|favicon|localline/|api/).*)", "destination": "/index.html" }
+    { "source": "/((?!data/|assets/|favicon|api/).*)", "destination": "/index.html" }
   ],
   "headers": [
     { "source": "/data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] }
