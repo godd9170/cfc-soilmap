@@ -80,6 +80,8 @@ export interface FeatureCard {
   facts?: { label: string; value: string }[]
   links?: { label: string; href: string }[]
   note?: string
+  /** Local Line storefront vendor whose live product listings are shown under the card. */
+  storefrontVendor?: { id: number; slug: string }
 }
 
 export interface ThematicLayer {

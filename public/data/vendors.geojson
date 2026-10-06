@@ -23,7 +23,9 @@
     "since": "25 May 2026",
     "logo": "/data/vendors/brackens.png",
     "icon": "/data/vendors/brackens-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6635,
+    "ll_vendor_slug": "brackens"
    }
   },
   {
@@ -48,7 +50,9 @@
     "since": "06 Jun 2025",
     "logo": "/data/vendors/edwin-county-farms.png",
     "icon": "/data/vendors/edwin-county-farms-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 5257,
+    "ll_vendor_slug": "edwin-county-farms"
    }
   },
   {
@@ -73,7 +77,9 @@
     "since": "25 May 2025",
     "logo": "/data/vendors/fiddlehead-farm.png",
     "icon": "/data/vendors/fiddlehead-farm-icon.png",
-    "approx": true
+    "approx": true,
+    "ll_vendor_id": 5205,
+    "ll_vendor_slug": "fiddlehead"
    }
   },
   {
@@ -98,7 +104,9 @@
     "since": "01 Jun 2026",
     "logo": "/data/vendors/hellyer-organics.png",
     "icon": "/data/vendors/hellyer-organics-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6663,
+    "ll_vendor_slug": "hellyer-organics"
    }
   },
   {
@@ -123,7 +131,9 @@
     "since": "27 May 2025",
     "logo": "/data/vendors/lambs-quarters-farm.png",
     "icon": "/data/vendors/lambs-quarters-farm-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 5212,
+    "ll_vendor_slug": "lambs-quarters"
    }
   },
   {
@@ -148,7 +158,9 @@
     "since": "23 Aug 2026",
     "logo": "/data/vendors/mohawk-bison-ranch.png",
     "icon": "/data/vendors/mohawk-bison-ranch-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6880,
+    "ll_vendor_slug": "mohawk-bison-ranch"
    }
   },
   {
@@ -173,7 +185,9 @@
     "since": "06 May 2025",
     "logo": "/data/vendors/nomad-mushrooms-pec.png",
     "icon": "/data/vendors/nomad-mushrooms-pec-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 5169,
+    "ll_vendor_slug": "nomad-mushroom"
    }
   },
   {
@@ -198,7 +212,9 @@
     "since": "08 Sep 2026",
     "logo": "/data/vendors/onceupona-farm.png",
     "icon": "/data/vendors/onceupona-farm-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6923,
+    "ll_vendor_slug": "onceupona-farm"
    }
   },
   {
@@ -223,7 +239,9 @@
     "since": "17 May 2026",
     "logo": "/data/vendors/paper-kite.png",
     "icon": "/data/vendors/paper-kite-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6587,
+    "ll_vendor_slug": "paper-kite"
    }
   },
   {
@@ -248,7 +266,9 @@
     "since": "16 Jan 2026",
     "logo": "/data/vendors/portico-gardens.png",
     "icon": "/data/vendors/portico-gardens-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6078,
+    "ll_vendor_slug": "portico-gardens"
    }
   },
   {
@@ -273,7 +293,9 @@
     "since": "04 Jul 2026",
     "logo": "/data/vendors/ravensview-farm.png",
     "icon": "/data/vendors/ravensview-farm-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6754,
+    "ll_vendor_slug": "ravensview-farm"
    }
   },
   {
@@ -298,7 +320,9 @@
     "since": "15 Jul 2025",
     "logo": "/data/vendors/return-to-earth.png",
     "icon": "/data/vendors/return-to-earth-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 5420,
+    "ll_vendor_slug": "return-to-earth"
    }
   },
   {
@@ -323,7 +347,9 @@
     "since": "26 Sep 2026",
     "logo": "/data/vendors/rorafresh.png",
     "icon": "/data/vendors/rorafresh-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6956,
+    "ll_vendor_slug": "rorafresh"
    }
   },
   {
@@ -348,7 +374,9 @@
     "since": "04 Jul 2026",
     "logo": "/data/vendors/sheep-on-7-sourdough.png",
     "icon": "/data/vendors/sheep-on-7-sourdough-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6755,
+    "ll_vendor_slug": "sheep-on-7"
    }
   },
   {
@@ -373,7 +401,9 @@
     "since": "05 Feb 2026",
     "logo": "/data/vendors/the-elmbrook-farm.png",
     "icon": "/data/vendors/the-elmbrook-farm-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 6240,
+    "ll_vendor_slug": "the-elmbrook-farm"
    }
   },
   {
@@ -398,7 +428,9 @@
     "since": "25 May 2025",
     "logo": "/data/vendors/vickis-veggies.png",
     "icon": "/data/vendors/vickis-veggies-icon.png",
-    "approx": false
+    "approx": false,
+    "ll_vendor_id": 5204,
+    "ll_vendor_slug": "vickis-veggies"
    }
   }
  ]

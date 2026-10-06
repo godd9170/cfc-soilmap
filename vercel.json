@@ -4,7 +4,10 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/((?!data/|assets/|favicon).*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/localline/(.*)", "destination": "https://localline.ca/api/storefront/v2/$1" },
+    { "source": "/((?!data/|assets/|favicon|localline/).*)", "destination": "/index.html" }
+  ],
   "headers": [
     { "source": "/data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] }
   ]

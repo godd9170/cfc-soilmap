@@ -17,8 +17,11 @@ or with exact coordinates:
   {"Vendor name": {"lat": 44.0, "lng": -77.1}}
   {"Vendor name": {"exclude": true}}   (leave a vendor off the map)
 Logos are matched by name from the images on the County Farm Collective vendors page.
+Each vendor is linked by name to its Local Line storefront vendor (id + slug, from the default
+price list's products/vendors endpoint) so the app can show that vendor's products.
 
 Run: uv run --with pillow python pipeline/build_vendors.py [path/to/export.csv]
+     uv run --with pillow python pipeline/build_vendors.py --link-only   (refresh Local Line ids only)
 """
 import csv
 import html
@@ -35,12 +38,16 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
 
 ROOT = Path(__file__).resolve().parent.parent
-CSV_PATH = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "data/raw/vendors.csv"
+LINK_ONLY = "--link-only" in sys.argv
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+CSV_PATH = Path(ARGS[0]) if ARGS else ROOT / "data/raw/vendors.csv"
 OUT = ROOT / "public/data"
 LOGO_DIR = OUT / "vendors"
 CACHE = ROOT / "pipeline/vendors/geocodes.json"
 OVERRIDES = ROOT / "pipeline/vendors/overrides.json"
 SITE = "https://www.countyfarmcollective.com"
+LOCALLINE_API = "https://localline.ca/api/storefront/v2"
+LOCALLINE_SUBDOMAIN = "cfc"
 UA = "pec-soil-explorer-pipeline (County Farm Collective vendor map)"
 PEC_VIEWBOX = "-77.75,44.25,-76.70,43.78"
 TOWNS = re.compile(r"\bpec\b|picton|prince edward|wellington|bloomfield|milford|cherry ?valley|demorestville|consecon|ameliasburgh|hillier|rossmore|cressy|waupoos|northport|carrying place", re.I)
@@ -210,9 +217,55 @@ def save_logo(url: str, slug: str) -> tuple[str, str]:
     return f"/data/vendors/{slug}.png", f"/data/vendors/{slug}-icon.png"
 
 
+def localline_vendors() -> dict[str, dict]:
+    """Storefront vendors on the default price list, keyed by normalised name."""
+    req = urllib.request.Request(
+        f"{LOCALLINE_API}/token/anonymous/", data=b"{}", method="POST",
+        headers={"User-Agent": UA, "Content-Type": "application/json", "Subdomain": LOCALLINE_SUBDOMAIN},
+    )
+    with urllib.request.urlopen(req, timeout=60) as r:
+        token = json.loads(r.read())["access"]
+
+    def api(path: str):
+        req = urllib.request.Request(f"{LOCALLINE_API}/{path}", headers={"User-Agent": UA, "Authorization": f"Bearer {token}"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.loads(r.read())
+
+    # The products endpoints only accept the price list's pk, not its slug.
+    price_list = api("price-lists/default/")
+    rows = api(f"price-lists/{price_list['id']}/products/vendors/")["results"]
+    return {norm(v["name"]): {"id": v["id"], "slug": v["slug"]} for v in rows}
+
+
+def link_localline(features: list[dict], issues: list) -> None:
+    try:
+        ll = localline_vendors()
+    except Exception as e:  # noqa: BLE001
+        issues.append(("Local Line", [f"vendor lookup failed ({e}); product galleries not linked"]))
+        return
+    for f in features:
+        p = f["properties"]
+        v = ll.get(norm(p["name"]))
+        p["ll_vendor_id"] = v["id"] if v else None
+        p["ll_vendor_slug"] = v["slug"] if v else ""
+        if not v:
+            issues.append((p["name"], ["no matching vendor on the Local Line default price list, so no product gallery"]))
+
+
 def house_number(a: str) -> str | None:
     m = re.search(r"\b(\d{1,5})\b", a or "")
     return m.group(1) if m else None
+
+
+def link_only():
+    path = OUT / "vendors.geojson"
+    fc = json.loads(path.read_text())
+    issues: list = []
+    link_localline(fc["features"], issues)
+    path.write_text(json.dumps(fc, ensure_ascii=False, indent=1))
+    print(f"Linked {sum(1 for f in fc['features'] if f['properties']['ll_vendor_id'])} of {len(fc['features'])} vendors to Local Line")
+    for name, probs in issues:
+        print(f"- {name}: {'; '.join(probs)}")
 
 
 def main():
@@ -304,6 +357,7 @@ def main():
             }
         )
 
+    link_localline(features, issues)
     CACHE.write_text(json.dumps(cache, indent=1, sort_keys=True) + "\n")
     (OUT / "vendors.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False, indent=1))
     print(f"\n{len(features)} of {len(rows)} vendors on the map -> public/data/vendors.geojson\n")
@@ -315,4 +369,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    link_only() if LINK_ONLY else main()

@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { GROUPS, LAYERS, SOIL_1948_PROVENANCE, type FeatureCard, type ThematicLayer } from '../lib/layers'
 import { SOIL_COLOURS, type SoilFeature, type SoilUnit } from '../lib/soil'
 import { Swatch } from './Legend'
+import VendorProducts from './VendorProducts'
 
 interface Props {
   point: { lat: number; lng: number }
@@ -130,6 +131,7 @@ function FeatureCardView({ layer, card }: { layer: ThematicLayer; card: FeatureC
           ))}
         </ul>
       )}
+      {card.storefrontVendor && <VendorProducts key={card.storefrontVendor.id} vendor={card.storefrontVendor} />}
       <p className="mt-3 text-xs text-stone-600 italic">{layer.caveat} The soil at this address is described below.</p>
     </section>
   )
